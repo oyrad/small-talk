@@ -20,8 +20,6 @@ export default function Room() {
 
   const [messages, setMessages] = useState<{ msg: string; user: string }[]>([]);
 
-  console.log({ user, messages });
-
   const { register, handleSubmit, reset } = useForm<MessageFormValues>({
     defaultValues: {
       message: '',
@@ -33,7 +31,6 @@ export default function Room() {
       socket.emit('join-room', room);
 
       socket.on('message', (msg) => {
-        console.log({ msg });
         setMessages((prev) => [...prev, msg]);
       });
     }
@@ -41,7 +38,7 @@ export default function Room() {
     return () => {
       socket.off('message');
     };
-  }, []);
+  }, [room]);
 
   function onSubmit(values: MessageFormValues) {
     socket.emit('message', { room, message: values.message, user });
@@ -51,11 +48,11 @@ export default function Room() {
   return (
     <div className="flex flex-col justify-between h-full">
       <div className="flex flex-col gap-2">
-        {messages.map((msg, index) => (
+        {messages.reverse().map((msg, index) => (
           <Card
             key={index}
             className={cn(
-              'w-fit px-4 py-1 bg-gray-200 text-black rounded-full',
+              'w-fit max-w-[70%] px-4 py-1 bg-gray-200 text-black rounded-full',
               msg.user === user && 'place-self-end bg-gray-700 text-white',
             )}
           >
@@ -64,7 +61,7 @@ export default function Room() {
         ))}
       </div>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Input {...register('message')} className="border border-gray-700 w-full" autoComplete="off" />
+        <Input {...register('message')} className="border border-gray-700 w-full" autoComplete="off" placeholder="Message" />
       </form>
     </div>
   );
