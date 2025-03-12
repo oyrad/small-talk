@@ -1,0 +1,20 @@
+{
+  "name": "small-talk",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "install:all": "yarn --cwd backend && yarn --cwd frontend",
+    "dev": "concurrently \"yarn workspace backend start:dev\" \"yarn workspace frontend dev\"",
+    "start": "concurrently \"cd backend && yarn start\" \"cd frontend && yarn start\""
+  },
+  "devDependencies": {
+    "concurrently": "9.1.2"
+  },
+  "dependencies": {
+    "prettier": "^3.5.3"
+  }
+}
