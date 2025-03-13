@@ -17,13 +17,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { MessageList } from '@/app/room/[room]/_components/MessageList';
-import { ServerToClientEvents } from 'backend/types/socket-events';
+import { ServerToClientEvents } from '@/types/socket-events';
 
 export interface Message {
   roomId: string;
   content: string;
   userId: string;
   userAlias: string;
+  timestamp: string;
 }
 
 interface MessageFormValues {
@@ -45,7 +46,7 @@ export default function Room() {
       socket.emit('join-room', roomId);
 
       const messageHandler = (message: Parameters<ServerToClientEvents['message']>[0]) => {
-        setMessages((prev) => [...prev, message]);
+        setMessages((prev) => [...prev, { ...message, timestamp: new Date().toISOString() }]);
       };
 
       socket.on('message', messageHandler);

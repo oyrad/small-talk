@@ -13,15 +13,42 @@ export function MessageList({ messages }: MessageListProps) {
   return (
     <div className="flex flex-col flex-grow min-h-0 overflow-y-auto gap-1">
       {messages.map((msg, index) => (
-        <Card
-          key={index}
-          className={cn(
-            'text-sm w-fit max-w-[70%] px-3 py-1 bg-gray-200 text-black rounded-full border-none',
-            msg.userId === userId && 'place-self-end bg-gray-700 text-white',
+        <>
+          {msg.userId !== messages[index - 1]?.userId && (
+            <p className={cn('text-gray-500 text-xs', msg.userId === userId && 'text-right')}>
+              {msg.userAlias.length ? msg.userAlias : msg.userId}
+            </p>
           )}
-        >
-          {msg.content}
-        </Card>
+
+          <div
+            className={cn(
+              'flex gap-2 text-sm w-fit max-w-[70%] items-center',
+              msg.userId === userId && 'place-self-end',
+            )}
+          >
+            {msg.userId === userId && (
+              <p className="italic text-gray-500 text-xs">
+                {new Date(msg.timestamp).getHours()}:{new Date(msg.timestamp).getMinutes()}
+              </p>
+            )}
+
+            <Card
+              key={index}
+              className={cn(
+                ' px-3 py-1 bg-gray-200 text-black rounded-full border-none',
+                msg.userId === userId && 'bg-gray-700 text-white',
+              )}
+            >
+              {msg.content}
+            </Card>
+
+            {msg.userId !== userId && (
+              <p className="italic text-gray-500 text-xs">
+                {new Date(msg.timestamp).getHours()}:{new Date(msg.timestamp).getMinutes()}
+              </p>
+            )}
+          </div>
+        </>
       ))}
     </div>
   );
