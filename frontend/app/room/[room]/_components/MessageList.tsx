@@ -2,6 +2,7 @@ import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { useUserStore } from '@/stores/use-user-store';
 import { Message } from '@/app/room/[room]/page';
+import { useEffect, useRef } from 'react';
 
 interface MessageListProps {
   messages: Array<Message>;
@@ -9,6 +10,13 @@ interface MessageListProps {
 
 export function MessageList({ messages }: MessageListProps) {
   const { userId } = useUserStore();
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (messagesEndRef.current && messages[messages.length - 1]?.userId === userId) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'instant' });
+    }
+  }, [messages, userId]);
 
   return (
     <div className="flex flex-col flex-grow min-h-0 overflow-y-auto gap-1">
@@ -22,7 +30,7 @@ export function MessageList({ messages }: MessageListProps) {
 
           <div
             className={cn(
-              'flex gap-2 text-sm w-fit max-w-[70%] items-center',
+              'flex gap-1.5 text-sm w-fit max-w-[70%] items-center',
               msg.userId === userId && 'place-self-end',
             )}
           >
@@ -50,6 +58,8 @@ export function MessageList({ messages }: MessageListProps) {
           </div>
         </>
       ))}
+
+      <div ref={messagesEndRef} />
     </div>
   );
 }
