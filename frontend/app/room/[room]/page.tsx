@@ -6,62 +6,95 @@ import { useForm } from 'react-hook-form';
 import { useParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import { v4 } from 'uuid';
-import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
+import { useUserStore } from '@/stores/use-user-store';
+import { Settings } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { MessageList } from '@/app/room/[room]/_components/MessageList';
+import { ServerToClientEvents } from 'backend/types/socket-events';
 
-const user = v4();
+export interface Message {
+  roomId: string;
+  content: string;
+  userId: string;
+  userAlias: string;
+}
 
 interface MessageFormValues {
   message: string;
 }
 
 export default function Room() {
-  const { room } = useParams<{ room: string }>();
+  const { room: roomId } = useParams<{ room: string }>();
+  const [messages, setMessages] = useState<Array<Message>>([]);
 
-  const [messages, setMessages] = useState<{ msg: string; user: string }[]>([]);
+  const { userId, userAlias } = useUserStore();
 
   const { register, handleSubmit, reset } = useForm<MessageFormValues>({
-    defaultValues: {
-      message: '',
-    },
+    defaultValues: { message: '' },
   });
 
   useEffect(() => {
-    if (room) {
-      socket.emit('join-room', room);
+    if (roomId) {
+      socket.emit('join-room', roomId);
 
-      socket.on('message', (msg) => {
-        setMessages((prev) => [...prev, msg]);
-      });
+      const messageHandler = (message: Parameters<ServerToClientEvents['message']>[0]) => {
+        setMessages((prev) => [...prev, message]);
+      };
+
+      socket.on('message', messageHandler);
+
+      return () => {
+        socket.off('message', messageHandler);
+        socket.emit('leave-room', roomId);
+      };
     }
-
-    return () => {
-      socket.off('message');
-    };
-  }, [room]);
+  }, [roomId]);
 
   function onSubmit(values: MessageFormValues) {
-    socket.emit('message', { room, message: values.message, user });
+    socket.emit('message', { roomId, content: values.message, userId, userAlias });
     reset();
   }
 
+  function copyRoomLink() {
+    void navigator.clipboard.writeText(window.location.href);
+    toast('Room link copied.');
+  }
+
   return (
-    <div className="flex flex-col justify-between h-full">
-      <div className="flex flex-col gap-2">
-        {messages.reverse().map((msg, index) => (
-          <Card
-            key={index}
-            className={cn(
-              'w-fit max-w-[70%] px-4 py-1 bg-gray-200 text-black rounded-full',
-              msg.user === user && 'place-self-end bg-gray-700 text-white',
-            )}
-          >
-            {msg.msg}
-          </Card>
-        ))}
-      </div>
+    <div className="flex flex-col h-full p-4 gap-3">
+      <header>
+        <Card className="flex flex-row justify-between items-center p-2 pl-4">
+          <h1 className="text-sm font-semibold cursor-pointer justify-self-start w-fit" onClick={copyRoomLink}>
+            {roomId}
+          </h1>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <Settings className="border border-gray-200 size-10 rounded-md p-2" />
+            </DropdownMenuTrigger>
+
+            <DropdownMenuContent className="mr-4">
+              <DropdownMenuItem onClick={copyRoomLink}>Copy room link</DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuItem className="text-red-600">Delete room</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </Card>
+      </header>
+
+      <MessageList messages={messages} />
+
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Input {...register('message')} className="border border-gray-700 w-full" autoComplete="off" placeholder="Message" />
+        <Input {...register('message')} className="border border-gray-400 w-full" placeholder="Message" />
       </form>
     </div>
   );
