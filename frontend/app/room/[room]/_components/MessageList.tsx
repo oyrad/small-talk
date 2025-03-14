@@ -4,14 +4,10 @@ import { useUserStore } from '@/stores/use-user-store';
 import { Message } from '@/app/room/[room]/page';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { formatISO9075 } from 'date-fns';
+import { getMessageTime } from '@/utils/get-message-time';
 
 function MessageTimestamp({ timestamp }: { timestamp: string }) {
-  return (
-    <p className="italic text-gray-500 text-xs">
-      {formatISO9075(new Date(timestamp), { representation: 'time' }).substring(0, 5)}
-    </p>
-  );
+  return <p className="text-gray-400 text-xs">{getMessageTime(timestamp)}</p>;
 }
 
 interface MessageListProps {
@@ -70,22 +66,20 @@ export function MessageList({ messages }: MessageListProps) {
           <div
             className={cn(
               'flex gap-1.5 text-sm w-fit max-w-[70%] items-center',
-              msg.userId === userId && 'place-self-end',
+              msg.userId === userId && 'place-self-end flex-row-reverse',
             )}
           >
-            {msg.userId === userId && <MessageTimestamp timestamp={msg.timestamp} />}
-
             <Card
               key={index}
               className={cn(
-                ' px-3 py-1 bg-gray-200 text-black rounded-full border-none',
+                'px-3 py-1 bg-gray-200 text-black rounded-full border-none',
                 msg.userId === userId && 'bg-gray-700 text-white',
               )}
             >
               {msg.content}
             </Card>
 
-            {msg.userId !== userId && <MessageTimestamp timestamp={msg.timestamp} />}
+            <MessageTimestamp timestamp={msg.timestamp} />
           </div>
         </div>
       ))}

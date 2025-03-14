@@ -10,7 +10,7 @@ import { ClientToServerEvents, ServerToClientEvents } from '../../types/socket-e
 
 type TypedSocket = Socket<ClientToServerEvents, ServerToClientEvents>;
 
-@WebSocketGateway({ cors: { origin: 'http://localhost:3000' } })
+@WebSocketGateway({ cors: { origin: ['*'] } })
 export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
@@ -25,7 +25,6 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @SubscribeMessage('join-room')
   handleJoinRoom(client: TypedSocket, roomId: string) {
-    console.log('join room event');
     client.join(roomId);
     console.log(`Client ${client.id} joined room: ${roomId}`);
   }
