@@ -6,6 +6,14 @@ import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { formatISO9075 } from 'date-fns';
 
+function MessageTimestamp({ timestamp }: { timestamp: string }) {
+  return (
+    <p className="italic text-gray-500 text-xs">
+      {formatISO9075(new Date(timestamp), { representation: 'time' }).substring(0, 5)}
+    </p>
+  );
+}
+
 interface MessageListProps {
   messages: Array<Message>;
 }
@@ -24,6 +32,12 @@ export function MessageList({ messages }: MessageListProps) {
       messagesEndRef.current.scrollIntoView({ behavior: 'instant' });
       setShowNewMessagesBanner(false);
     } else {
+      const isAtBottom =
+        messageListRef.current.scrollHeight <=
+        messageListRef.current.scrollTop + messageListRef.current.clientHeight + 5;
+
+      if (isAtBottom) return;
+
       setShowNewMessagesBanner(true);
     }
   }, [messages, userId]);
@@ -48,7 +62,7 @@ export function MessageList({ messages }: MessageListProps) {
       {messages.map((msg, index) => (
         <div key={index}>
           {msg.userId !== messages[index - 1]?.userId && (
-            <p className={cn('text-gray-500 text-xs mb-1', msg.userId === userId && 'text-right')}>
+            <p className={cn('text-gray-700 text-xs mb-1', msg.userId === userId && 'text-right')}>
               {msg.userAlias ?? msg.userId}
             </p>
           )}
@@ -59,11 +73,7 @@ export function MessageList({ messages }: MessageListProps) {
               msg.userId === userId && 'place-self-end',
             )}
           >
-            {msg.userId === userId && (
-              <p className="italic text-gray-500 text-xs">
-                {formatISO9075(new Date(msg.timestamp), { representation: 'time' }).substring(0, 5)}
-              </p>
-            )}
+            {msg.userId === userId && <MessageTimestamp timestamp={msg.timestamp} />}
 
             <Card
               key={index}
@@ -75,11 +85,7 @@ export function MessageList({ messages }: MessageListProps) {
               {msg.content}
             </Card>
 
-            {msg.userId !== userId && (
-              <p className="italic text-gray-500 text-xs">
-                {formatISO9075(new Date(msg.timestamp), { representation: 'time' }).substring(0, 5)}
-              </p>
-            )}
+            {msg.userId !== userId && <MessageTimestamp timestamp={msg.timestamp} />}
           </div>
         </div>
       ))}
