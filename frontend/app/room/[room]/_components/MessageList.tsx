@@ -13,11 +13,12 @@ interface MessageListProps {
 export function MessageList({ messages }: MessageListProps) {
   const [showNewMessagesBanner, setShowNewMessagesBanner] = useState(false);
   const { userId } = useUserStore();
+
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const messageListRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (!messagesEndRef.current || !messageListRef.current) return;
+    if (!messagesEndRef.current || !messageListRef.current || !messages.length) return;
 
     if (messages[messages.length - 1]?.userId === userId) {
       messagesEndRef.current.scrollIntoView({ behavior: 'instant' });
@@ -38,8 +39,6 @@ export function MessageList({ messages }: MessageListProps) {
     }
   };
 
-  console.log({ messages });
-
   return (
     <div
       ref={messageListRef}
@@ -50,7 +49,7 @@ export function MessageList({ messages }: MessageListProps) {
         <div key={index}>
           {msg.userId !== messages[index - 1]?.userId && (
             <p className={cn('text-gray-500 text-xs mb-1', msg.userId === userId && 'text-right')}>
-              {msg.userAlias.length ? msg.userAlias : msg.userId}
+              {msg.userAlias ?? msg.userId}
             </p>
           )}
 
@@ -96,7 +95,7 @@ export function MessageList({ messages }: MessageListProps) {
           className="fixed bottom-16 left-[50%] transform -translate-x-1/2"
           variant="outline"
         >
-          New messages
+          New message
         </Button>
       )}
     </div>
