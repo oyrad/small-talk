@@ -2,28 +2,54 @@ import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { useUserStore } from '@/stores/use-user-store';
 import { Message } from '@/app/room/[room]/page';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { formatISO9075 } from 'date-fns';
 
 interface MessageListProps {
   messages: Array<Message>;
 }
 
 export function MessageList({ messages }: MessageListProps) {
+  const [showNewMessagesBanner, setShowNewMessagesBanner] = useState(false);
   const { userId } = useUserStore();
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const messageListRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (messagesEndRef.current && messages[messages.length - 1]?.userId === userId) {
+    if (!messagesEndRef.current || !messageListRef.current) return;
+
+    if (messages[messages.length - 1]?.userId === userId) {
       messagesEndRef.current.scrollIntoView({ behavior: 'instant' });
+      setShowNewMessagesBanner(false);
+    } else {
+      setShowNewMessagesBanner(true);
     }
   }, [messages, userId]);
 
+  const handleScroll = () => {
+    if (!messageListRef.current) return;
+
+    const bottom =
+      messageListRef.current.scrollHeight === messageListRef.current.scrollTop + messageListRef.current.clientHeight;
+
+    if (bottom) {
+      setShowNewMessagesBanner(false);
+    }
+  };
+
+  console.log({ messages });
+
   return (
-    <div className="flex flex-col flex-grow min-h-0 overflow-y-auto gap-1">
+    <div
+      ref={messageListRef}
+      className="flex flex-col flex-grow min-h-0 overflow-y-auto gap-1 relative"
+      onScroll={handleScroll}
+    >
       {messages.map((msg, index) => (
-        <>
+        <div key={index}>
           {msg.userId !== messages[index - 1]?.userId && (
-            <p className={cn('text-gray-500 text-xs', msg.userId === userId && 'text-right')}>
+            <p className={cn('text-gray-500 text-xs mb-1', msg.userId === userId && 'text-right')}>
               {msg.userAlias.length ? msg.userAlias : msg.userId}
             </p>
           )}
@@ -36,7 +62,7 @@ export function MessageList({ messages }: MessageListProps) {
           >
             {msg.userId === userId && (
               <p className="italic text-gray-500 text-xs">
-                {new Date(msg.timestamp).getHours()}:{new Date(msg.timestamp).getMinutes()}
+                {formatISO9075(new Date(msg.timestamp), { representation: 'time' }).substring(0, 5)}
               </p>
             )}
 
@@ -52,14 +78,27 @@ export function MessageList({ messages }: MessageListProps) {
 
             {msg.userId !== userId && (
               <p className="italic text-gray-500 text-xs">
-                {new Date(msg.timestamp).getHours()}:{new Date(msg.timestamp).getMinutes()}
+                {formatISO9075(new Date(msg.timestamp), { representation: 'time' }).substring(0, 5)}
               </p>
             )}
           </div>
-        </>
+        </div>
       ))}
 
       <div ref={messagesEndRef} />
+
+      {showNewMessagesBanner && (
+        <Button
+          onClick={() => {
+            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+            setShowNewMessagesBanner(false);
+          }}
+          className="fixed bottom-16 left-[50%] transform -translate-x-1/2"
+          variant="outline"
+        >
+          New messages
+        </Button>
+      )}
     </div>
   );
 }
