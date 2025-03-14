@@ -3,7 +3,7 @@
 import { socket } from '@/socket';
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { toast } from 'sonner';
@@ -18,6 +18,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { MessageList } from '@/app/room/[room]/_components/MessageList';
 import { ServerToClientEvents } from '@/types/socket-events';
+import { useGetRoomByIdQuery } from '@/hooks/use-get-room-by-id-query';
+import { useDeleteRoomMutation } from '@/hooks/use-delete-room-mutation';
 
 export interface Message {
   roomId: string;
@@ -37,8 +39,17 @@ export default function Room() {
 
   const { userId, userAlias } = useUserStore();
 
+  const { push } = useRouter();
+
   const { register, handleSubmit, reset } = useForm<MessageFormValues>({
     defaultValues: { message: '' },
+  });
+
+  const { data: room } = useGetRoomByIdQuery(roomId);
+  const { mutate: deleteRoom } = useDeleteRoomMutation({
+    onSuccess: () => {
+      push('/');
+    },
   });
 
   useEffect(() => {
@@ -59,7 +70,7 @@ export default function Room() {
   }, [roomId]);
 
   function onSubmit(values: MessageFormValues) {
-    socket.emit('message', { roomId, content: values.message, userId, userAlias });
+    socket.emit('message', { roomId: room?.id ?? '', content: values.message, userId, userAlias });
     reset();
   }
 
@@ -72,9 +83,16 @@ export default function Room() {
     <div className="flex flex-col h-full p-4 gap-3">
       <header>
         <Card className="flex flex-row justify-between items-center p-2 pl-4">
-          <h1 className="text-sm font-semibold cursor-pointer justify-self-start w-fit" onClick={copyRoomLink}>
-            {roomId}
-          </h1>
+          {room && room.name ? (
+            <div onClick={copyRoomLink}>
+              <h1 className="text-lg font-semibold">{room.name}</h1>
+              <p className="text-xs text-gray-500">{room.id}</p>
+            </div>
+          ) : (
+            <h1 className="text-sm font-semibold cursor-pointer justify-self-start w-fit" onClick={copyRoomLink}>
+              {room?.id}
+            </h1>
+          )}
 
           <DropdownMenu>
             <DropdownMenuTrigger>
@@ -86,7 +104,9 @@ export default function Room() {
 
               <DropdownMenuSeparator />
 
-              <DropdownMenuItem className="text-red-600">Delete room</DropdownMenuItem>
+              <DropdownMenuItem className="text-red-600" onClick={() => deleteRoom(roomId)}>
+                Delete room
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </Card>
