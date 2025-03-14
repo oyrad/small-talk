@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 interface UserIdStore {
   userId: string;
-  userAlias: string;
+  userAlias: string | null;
   setUserAlias: (alias: string) => void;
   initializeUserId: VoidFunction;
 }
@@ -13,7 +13,7 @@ export const useUserStore = create<UserIdStore>()(
   persist(
     (set, get) => ({
       userId: '',
-      userAlias: '',
+      userAlias: null,
       setUserAlias: (alias) => set({ userAlias: alias }),
       initializeUserId: () => {
         if (get().userId) return;
