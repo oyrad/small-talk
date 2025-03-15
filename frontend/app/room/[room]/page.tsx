@@ -1,7 +1,6 @@
 'use client';
 
 import { socket } from '@/socket';
-import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useParams, useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
@@ -10,21 +9,13 @@ import { toast } from 'sonner';
 import { useUserStore } from '@/stores/use-user-store';
 import { Settings } from 'lucide-react';
 import { MessageList } from '@/app/room/[room]/_components/MessageList';
-import { ServerToClientEvents } from '@/types/socket-events';
 import { useGetRoomByIdQuery } from '@/hooks/use-get-room-by-id-query';
 import { useDeleteRoomMutation } from '@/hooks/use-delete-room-mutation';
 import { PasswordPrompt, PasswordPromptFormValues } from '@/app/room/[room]/_components/PasswordPrompt';
 import { HeaderDropDownMenu } from '@/app/room/[room]/_components/HeaderDropDownMenu';
 import { Button } from '@/components/ui/button';
 import { useValidatePasswordMutation } from '@/hooks/use-validate-password-mutation';
-
-export interface Message {
-  roomId: string;
-  content: string;
-  userId: string;
-  userAlias: string | null;
-  timestamp: string;
-}
+import { useRoomSocket } from '@/hooks/use-room-socket';
 
 interface MessageFormValues {
   message: string;
@@ -32,7 +23,6 @@ interface MessageFormValues {
 
 export default function Room() {
   const { room: roomId } = useParams<{ room: string }>();
-  const [messages, setMessages] = useState<Array<Message>>([]);
 
   const { userId, userAlias } = useUserStore();
   const { push } = useRouter();
@@ -42,32 +32,16 @@ export default function Room() {
   });
 
   const { data: room } = useGetRoomByIdQuery(roomId);
+  const { mutateAsync: validatePassword } = useValidatePasswordMutation(roomId);
   const { mutate: deleteRoom } = useDeleteRoomMutation({
     onSuccess: () => {
       push('/');
     },
   });
 
-  const isUserInRoom = room?.users.includes(userId);
+  const isAuthenticated = !!room && room.users.includes(userId);
 
-  const { mutateAsync: validatePassword } = useValidatePasswordMutation(roomId);
-
-  useEffect(() => {
-    if (roomId) {
-      socket.emit('join-room', roomId);
-
-      const messageHandler = (message: Parameters<ServerToClientEvents['message']>[0]) => {
-        setMessages((prev) => [...prev, { ...message, timestamp: new Date().toISOString() }]);
-      };
-
-      socket.on('message', messageHandler);
-
-      return () => {
-        socket.off('message', messageHandler);
-        socket.emit('leave-room', roomId);
-      };
-    }
-  }, [roomId]);
+  const { messages } = useRoomSocket({ roomId, isAuthenticated });
 
   function onMessageSubmit(values: MessageFormValues) {
     socket.emit('message', { roomId: room?.id ?? '', content: values.message, userId, userAlias });
@@ -87,7 +61,7 @@ export default function Room() {
     }
   }
 
-  if (room?.password && !isUserInRoom) {
+  if (room?.password && !isAuthenticated) {
     return <PasswordPrompt onValidatePassword={onValidatePassword} />;
   }
 
