@@ -2,18 +2,14 @@
 
 import { socket } from '@/socket';
 import { useForm } from 'react-hook-form';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { useUserStore } from '@/stores/use-user-store';
-import { Settings } from 'lucide-react';
 import { MessageList } from '@/app/room/[room]/_components/MessageList';
 import { useGetRoomByIdQuery } from '@/hooks/use-get-room-by-id-query';
-import { useDeleteRoomMutation } from '@/hooks/use-delete-room-mutation';
 import { PasswordPrompt, PasswordPromptFormValues } from '@/app/room/[room]/_components/PasswordPrompt';
-import { HeaderDropDownMenu } from '@/app/room/[room]/_components/HeaderDropDownMenu';
-import { Button } from '@/components/ui/button';
 import { useValidatePasswordMutation } from '@/hooks/use-validate-password-mutation';
 import { useRoomSocket } from '@/hooks/use-room-socket';
 
@@ -25,7 +21,6 @@ export default function Room() {
   const { room: roomId } = useParams<{ room: string }>();
 
   const { userId, userAlias } = useUserStore();
-  const { push } = useRouter();
 
   const { register, handleSubmit, reset } = useForm<MessageFormValues>({
     defaultValues: { message: '' },
@@ -33,18 +28,13 @@ export default function Room() {
 
   const { data: room } = useGetRoomByIdQuery(roomId);
   const { mutateAsync: validatePassword } = useValidatePasswordMutation(roomId);
-  const { mutate: deleteRoom } = useDeleteRoomMutation({
-    onSuccess: () => {
-      push('/');
-    },
-  });
 
-  const isAuthenticated = !!room && room.users.includes(userId);
+  const isAuthenticated = !!room && !!userId && room.users.includes(userId);
 
   const { messages } = useRoomSocket({ roomId, isAuthenticated });
 
   function onMessageSubmit(values: MessageFormValues) {
-    socket.emit('message', { roomId: room?.id ?? '', content: values.message, userId, userAlias });
+    socket.emit('message', { roomId: room?.id ?? '', content: values.message, userId: userId ?? '', userAlias });
     reset();
   }
 
@@ -54,7 +44,7 @@ export default function Room() {
   }
 
   async function onValidatePassword({ password }: PasswordPromptFormValues) {
-    const res = await validatePassword({ userId, password });
+    const res = await validatePassword({ userId: userId ?? '', password });
 
     if (!res.success) {
       toast.error('Invalid password');
@@ -80,11 +70,11 @@ export default function Room() {
             </h1>
           )}
 
-          <HeaderDropDownMenu onCopyLink={copyRoomLink} onRoomDelete={() => deleteRoom(roomId)}>
+          {/*<HeaderDropDownMenu onCopyLink={copyRoomLink} onRoomDelete={() => deleteRoom(roomId)}>
             <Button asChild variant="outline" className="h-full">
               <Settings className="size-14" />
             </Button>
-          </HeaderDropDownMenu>
+          </HeaderDropDownMenu>*/}
         </Card>
       </header>
 

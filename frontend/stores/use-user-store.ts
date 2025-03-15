@@ -1,33 +1,23 @@
 import { create } from 'zustand/react';
 import { persist } from 'zustand/middleware';
-import { v4 as uuidv4 } from 'uuid';
 
-interface UserIdStore {
-  userId: string;
+interface UserStore {
+  userId: string | null;
   userAlias: string | null;
+  setUserId: (id: string) => void;
   setUserAlias: (alias: string) => void;
-  initializeUserId: VoidFunction;
 }
 
-export const useUserStore = create<UserIdStore>()(
+export const useUserStore = create<UserStore>()(
   persist(
-    (set, get) => ({
-      userId: '',
+    (set) => ({
+      userId: null,
       userAlias: null,
+      setUserId: (id) => set({ userId: id }),
       setUserAlias: (alias) => set({ userAlias: alias }),
-      initializeUserId: () => {
-        if (get().userId) return;
-
-        const storedUserId = localStorage.getItem('user-id');
-        const newUserId = storedUserId || uuidv4();
-
-        set({ userId: newUserId });
-
-        localStorage.setItem('user-id', newUserId);
-      },
     }),
     {
-      name: 'user-id',
+      name: 'user',
       version: 0,
     },
   ),

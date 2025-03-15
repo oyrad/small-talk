@@ -36,14 +36,15 @@ export default function Home() {
       <Card className="w-full py-2.5 px-4 gap-0.5 text-xs">
         <p className="text-lg font-semibold">{userAlias}</p>
         <p className="mb-2">User id: {userId}</p>
-        <ChangeUserAlias>
+
+        <ChangeUserAlias userId={userId ?? ''}>
           <Button className="w-full" variant="outline">
             Change alias
           </Button>
         </ChangeUserAlias>
       </Card>
 
-      <form onSubmit={handleSubmit((values) => createRoom({ ...values, userId }))} className="w-full">
+      <form onSubmit={handleSubmit((values) => createRoom({ ...values, userId: userId ?? '' }))} className="w-full">
         <Card className="p-4 gap-2">
           <Input {...register('name')} placeholder="Room name" />
           <Input {...register('password')} type="password" placeholder="Password" className="mb-2" />

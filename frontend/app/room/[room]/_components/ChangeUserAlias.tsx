@@ -11,12 +11,17 @@ import {
 import { useForm } from 'react-hook-form';
 import { useUserStore } from '@/stores/use-user-store';
 import { PropsWithChildren, useState } from 'react';
+import { useUpdateUserMutation } from '@/hooks/use-update-user-mutation';
 
 interface ChangeUserAliasFormValues {
   alias: string;
 }
 
-export function ChangeUserAlias({ children }: PropsWithChildren) {
+interface ChangeUserAliasProps extends PropsWithChildren {
+  userId: string;
+}
+
+export function ChangeUserAlias({ userId, children }: ChangeUserAliasProps) {
   const [isOpen, setIsOpen] = useState(false);
   const { setUserAlias } = useUserStore();
 
@@ -26,8 +31,14 @@ export function ChangeUserAlias({ children }: PropsWithChildren) {
     },
   });
 
-  function onSubmit({ alias }: ChangeUserAliasFormValues) {
-    setUserAlias(alias);
+  const { mutateAsync: updateUser } = useUpdateUserMutation({
+    onSuccess: (data) => {
+      setUserAlias(data.alias);
+    },
+  });
+
+  async function onSubmit({ alias }: ChangeUserAliasFormValues) {
+    await updateUser({ userId, data: { alias } });
     setIsOpen(false);
   }
 

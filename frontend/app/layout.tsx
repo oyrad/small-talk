@@ -3,7 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { PropsWithChildren } from 'react';
 import { Toaster } from '@/components/ui/sonner';
-import { InitializeUserId } from '@/app/_components/InitializeUserId';
+import { InitializeUser } from '@/app/_components/InitializeUser';
 import { Providers } from '@/app/_components/Providers';
 
 const geistSans = Geist({
@@ -28,7 +28,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
         <Providers>
           <main className="h-svh md:h-screen">{children}</main>
           <Toaster duration={2000} />
-          <InitializeUserId />
+          <InitializeUser />
         </Providers>
       </body>
     </html>
