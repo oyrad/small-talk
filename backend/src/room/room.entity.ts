@@ -11,6 +11,9 @@ export class Room {
   @Column({ nullable: true })
   password?: string;
 
+  @Column('text', { array: true, default: [] })
+  users: Array<string>;
+
   @CreateDateColumn()
   createdAt: Date;
 }

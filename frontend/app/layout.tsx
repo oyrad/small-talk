@@ -27,7 +27,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Providers>
           <main className="h-svh md:h-screen">{children}</main>
-          <Toaster duration={1500} />
+          <Toaster duration={2000} />
           <InitializeUserId />
         </Providers>
       </body>

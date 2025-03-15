@@ -9,17 +9,14 @@ import { Card } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { useUserStore } from '@/stores/use-user-store';
 import { Settings } from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import { MessageList } from '@/app/room/[room]/_components/MessageList';
 import { ServerToClientEvents } from '@/types/socket-events';
 import { useGetRoomByIdQuery } from '@/hooks/use-get-room-by-id-query';
 import { useDeleteRoomMutation } from '@/hooks/use-delete-room-mutation';
+import { PasswordPrompt, PasswordPromptFormValues } from '@/app/room/[room]/_components/PasswordPrompt';
+import { HeaderDropDownMenu } from '@/app/room/[room]/_components/HeaderDropDownMenu';
+import { Button } from '@/components/ui/button';
+import { useValidatePasswordMutation } from '@/hooks/use-validate-password-mutation';
 
 export interface Message {
   roomId: string;
@@ -38,7 +35,6 @@ export default function Room() {
   const [messages, setMessages] = useState<Array<Message>>([]);
 
   const { userId, userAlias } = useUserStore();
-
   const { push } = useRouter();
 
   const { register, handleSubmit, reset } = useForm<MessageFormValues>({
@@ -51,6 +47,10 @@ export default function Room() {
       push('/');
     },
   });
+
+  const isUserInRoom = room?.users.includes(userId);
+
+  const { mutateAsync: validatePassword } = useValidatePasswordMutation(roomId);
 
   useEffect(() => {
     if (roomId) {
@@ -69,7 +69,7 @@ export default function Room() {
     }
   }, [roomId]);
 
-  function onSubmit(values: MessageFormValues) {
+  function onMessageSubmit(values: MessageFormValues) {
     socket.emit('message', { roomId: room?.id ?? '', content: values.message, userId, userAlias });
     reset();
   }
@@ -77,6 +77,18 @@ export default function Room() {
   function copyRoomLink() {
     void navigator.clipboard.writeText(window.location.href);
     toast('Room link copied.');
+  }
+
+  async function onValidatePassword({ password }: PasswordPromptFormValues) {
+    const res = await validatePassword({ userId, password });
+
+    if (!res.success) {
+      toast.error('Invalid password');
+    }
+  }
+
+  if (room?.password && !isUserInRoom) {
+    return <PasswordPrompt onValidatePassword={onValidatePassword} />;
   }
 
   return (
@@ -94,27 +106,17 @@ export default function Room() {
             </h1>
           )}
 
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <Settings className="border border-gray-200 size-10 rounded-md p-2" />
-            </DropdownMenuTrigger>
-
-            <DropdownMenuContent className="mr-4">
-              <DropdownMenuItem onClick={copyRoomLink}>Copy room link</DropdownMenuItem>
-
-              <DropdownMenuSeparator />
-
-              <DropdownMenuItem className="text-red-600" onClick={() => deleteRoom(roomId)}>
-                Delete room
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <HeaderDropDownMenu onCopyLink={copyRoomLink} onRoomDelete={() => deleteRoom(roomId)}>
+            <Button asChild variant="outline" className="h-full">
+              <Settings className="size-14" />
+            </Button>
+          </HeaderDropDownMenu>
         </Card>
       </header>
 
       <MessageList messages={messages} />
 
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onMessageSubmit)}>
         <Input {...register('message')} className="border border-gray-400 w-full" placeholder="Message" />
       </form>
     </div>
