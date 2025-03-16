@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/dialog';
 import { useForm } from 'react-hook-form';
 import { useUserStore } from '@/stores/use-user-store';
-import { PropsWithChildren, useState } from 'react';
+import { PropsWithChildren } from 'react';
 import { useUpdateUserMutation } from '@/hooks/use-update-user-mutation';
 
 interface ChangeUserAliasFormValues {
@@ -19,10 +19,11 @@ interface ChangeUserAliasFormValues {
 
 interface ChangeUserAliasProps extends PropsWithChildren {
   userId: string;
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
 }
 
-export function ChangeUserAlias({ userId, children }: ChangeUserAliasProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export function ChangeUserAlias({ userId, isOpen, setIsOpen, children }: ChangeUserAliasProps) {
   const { setUserAlias } = useUserStore();
 
   const { register, handleSubmit } = useForm<ChangeUserAliasFormValues>({
@@ -40,7 +41,8 @@ export function ChangeUserAlias({ userId, children }: ChangeUserAliasProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+      {children && <DialogTrigger asChild>{children}</DialogTrigger>}
+
       <DialogContent>
         <form onSubmit={handleSubmit(({ alias }) => updateUser({ userId, data: { alias } }))}>
           <DialogHeader>

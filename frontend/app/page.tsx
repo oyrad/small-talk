@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/card';
 import { useUserStore } from '@/stores/use-user-store';
 import { ChangeUserAlias } from '@/app/room/[room]/_components/ChangeUserAlias';
 import { useCreateRoomMutation } from '@/hooks/use-create-room-mutation';
+import { useState } from 'react';
 
 interface CreateRoomFormValues {
   name: string;
@@ -15,6 +16,8 @@ interface CreateRoomFormValues {
 }
 
 export default function Home() {
+  const [isAliasDialogOpen, setIsAliasDialogOpen] = useState(false);
+
   const { userId, userAlias } = useUserStore();
   const { push } = useRouter();
 
@@ -37,7 +40,7 @@ export default function Home() {
         <p className="text-lg font-semibold">{userAlias}</p>
         <p className="mb-2">User id: {userId}</p>
 
-        <ChangeUserAlias userId={userId ?? ''}>
+        <ChangeUserAlias userId={userId ?? ''} isOpen={isAliasDialogOpen} setIsOpen={setIsAliasDialogOpen}>
           <Button className="w-full" variant="outline">
             Change alias
           </Button>

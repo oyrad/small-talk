@@ -12,6 +12,10 @@ import { useGetRoomByIdQuery } from '@/hooks/use-get-room-by-id-query';
 import { PasswordPrompt, PasswordPromptFormValues } from '@/app/room/[room]/_components/PasswordPrompt';
 import { useValidatePasswordMutation } from '@/hooks/use-validate-password-mutation';
 import { useRoomSocket } from '@/hooks/use-room-socket';
+import { useSendMessageMutation } from '@/hooks/use-send-message-mutation';
+import { HeaderDropDownMenu } from '@/app/room/[room]/_components/HeaderDropDownMenu';
+import { Button } from '@/components/ui/button';
+import { Settings } from 'lucide-react';
 
 interface MessageFormValues {
   message: string;
@@ -31,11 +35,17 @@ export default function Room() {
 
   const isAuthenticated = !!room?.password && room.users.some((user) => user.id === userId);
 
-  const { messages } = useRoomSocket({ roomId, isAuthenticated });
+  useRoomSocket({ roomId, isAuthenticated });
+
+  const { mutate: sendMessage } = useSendMessageMutation({
+    onSuccess: (message) => {
+      socket.emit('message', { roomId: room?.id ?? '', content: message.content, userId: userId ?? '', userAlias });
+      reset();
+    },
+  });
 
   function onMessageSubmit(values: MessageFormValues) {
-    socket.emit('message', { roomId: room?.id ?? '', content: values.message, userId: userId ?? '', userAlias });
-    reset();
+    sendMessage({ roomId: room?.id ?? '', userId: userId ?? '', content: values.message });
   }
 
   function copyRoomLink() {
@@ -70,15 +80,20 @@ export default function Room() {
             </h1>
           )}
 
-          {/*<HeaderDropDownMenu onCopyLink={copyRoomLink} onRoomDelete={() => deleteRoom(roomId)}>
-            <Button asChild variant="outline" className="h-full">
-              <Settings className="size-14" />
+          <HeaderDropDownMenu
+            onCopyLink={copyRoomLink}
+            userId={userId ?? ''}
+            roomCreatorId={room?.creator.id ?? ''}
+            roomId={room?.id ?? ''}
+          >
+            <Button asChild variant="outline" className="h-full p-0">
+              <Settings className="size-10 p-2" />
             </Button>
-          </HeaderDropDownMenu>*/}
+          </HeaderDropDownMenu>
         </Card>
       </header>
 
-      <MessageList messages={messages} />
+      <MessageList messages={room?.messages ?? []} />
 
       <form onSubmit={handleSubmit(onMessageSubmit)}>
         <Input {...register('message')} className="border border-gray-400 w-full" placeholder="Message" />

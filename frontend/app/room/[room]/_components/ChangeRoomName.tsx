@@ -1,19 +1,51 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { PropsWithChildren } from 'react';
+import { useUpdateRoomMutation } from '@/hooks/use-update-room-mutation';
+import { useForm } from 'react-hook-form';
 
-export function ChangeRoomName() {
+interface ChangeRoomNameFormValues {
+  name: string;
+}
+
+interface ChangeRoomNameProps extends PropsWithChildren {
+  roomId: string;
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+}
+
+export function ChangeRoomName({ roomId, isOpen, setIsOpen, children }: ChangeRoomNameProps) {
+  const { register, handleSubmit } = useForm<ChangeRoomNameFormValues>();
+
+  const { mutate: updateRoom } = useUpdateRoomMutation({
+    onSuccess: () => {
+      setIsOpen(false);
+    },
+  });
+
   return (
-    <DialogContent>
-      <DialogHeader>
-        <DialogTitle className="text-left mb-2">Change room name</DialogTitle>
-        <DialogDescription>
-          <form className="flex gap-2">
-            <Input placeholder="New room name" />
-            <Button>Save</Button>
-          </form>
-        </DialogDescription>
-      </DialogHeader>
-    </DialogContent>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      {children && <DialogTrigger asChild>{children}</DialogTrigger>}
+
+      <DialogContent>
+        <form onSubmit={handleSubmit(({ name }) => updateRoom({ id: roomId, data: { name } }))}>
+          <DialogHeader>
+            <DialogTitle className="text-left mb-2">Change room name</DialogTitle>
+            <DialogDescription className="flex gap-2">
+              <Input {...register('name')} placeholder="New room name" />
+              <Button>Save</Button>
+            </DialogDescription>
+          </DialogHeader>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

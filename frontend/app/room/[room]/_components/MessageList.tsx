@@ -1,13 +1,13 @@
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { useUserStore } from '@/stores/use-user-store';
-import { Message } from '@/app/room/[room]/page';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { getMessageTime } from '@/utils/get-message-time';
+import { Message } from '@/types/message';
 
 function MessageTimestamp({ timestamp }: { timestamp: string }) {
-  return <p className="text-gray-400 text-xs">{getMessageTime(timestamp)}</p>;
+  return <p className="text-gray-400 text-[0.70rem]">{getMessageTime(timestamp)}</p>;
 }
 
 interface MessageListProps {
@@ -24,7 +24,7 @@ export function MessageList({ messages }: MessageListProps) {
   useEffect(() => {
     if (!messagesEndRef.current || !messageListRef.current || !messages.length) return;
 
-    if (messages[messages.length - 1]?.userId === userId) {
+    if (messages[messages.length - 1]?.user.id === userId) {
       messagesEndRef.current.scrollIntoView({ behavior: 'instant' });
       setShowNewMessagesBanner(false);
     } else {
@@ -57,29 +57,29 @@ export function MessageList({ messages }: MessageListProps) {
     >
       {messages.map((msg, index) => (
         <div key={index}>
-          {msg.userId !== messages[index - 1]?.userId && (
-            <p className={cn('text-gray-700 text-xs mb-1', msg.userId === userId && 'text-right')}>
-              {msg.userAlias ?? msg.userId}
+          {msg.user.id !== messages[index - 1]?.user.id && (
+            <p className={cn('text-gray-700 text-xs mb-1', msg.user.id === userId && 'text-right')}>
+              {msg.user.alias ?? msg.user.id}
             </p>
           )}
 
           <div
             className={cn(
-              'flex gap-1.5 text-sm w-fit max-w-[70%] items-center',
-              msg.userId === userId && 'place-self-end flex-row-reverse',
+              'flex gap-1.5 text-sm w-fit max-w-[70%] items-end',
+              msg.user.id === userId && 'place-self-end flex-row-reverse',
             )}
           >
             <Card
               key={index}
               className={cn(
                 'px-3 py-1 bg-gray-200 text-black rounded-full border-none',
-                msg.userId === userId && 'bg-gray-700 text-white',
+                msg.user.id === userId && 'bg-gray-700 text-white',
               )}
             >
               {msg.content}
             </Card>
 
-            <MessageTimestamp timestamp={msg.timestamp} />
+            <MessageTimestamp timestamp={msg.createdAt} />
           </div>
         </div>
       ))}

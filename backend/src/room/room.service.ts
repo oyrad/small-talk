@@ -11,7 +11,7 @@ export class RoomService {
 
   constructor(
     @InjectRepository(Room)
-    private roomRepository: Repository<Room>,
+    private readonly roomRepository: Repository<Room>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ) {}
@@ -36,7 +36,18 @@ export class RoomService {
 
   async getRoomById(id: string) {
     this.logger.log(`Fetching room by ID: ${id}`);
-    return this.roomRepository.findOne({ where: { id }, relations: ['users', 'creator'] });
+    return this.roomRepository.findOne({ where: { id }, relations: ['users', 'creator', 'messages'] });
+  }
+
+  async updateRoomById(id: string, data: Partial<Room>) {
+    this.logger.log(`Updating room with ID: ${id}`);
+
+    await this.roomRepository.update(id, data);
+    const updatedRoom = await this.getRoomById(id);
+
+    this.logger.log(`User updated with ID: ${updatedRoom.id}`);
+
+    return updatedRoom;
   }
 
   async deleteRoom(id: string) {

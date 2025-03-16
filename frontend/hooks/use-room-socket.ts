@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
-import { Message } from '@/types/message';
+import { useEffect } from 'react';
 import { socket } from '@/socket';
-import { ServerToClientEvents } from '@/types/socket-events';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface UseRoomSocketParams {
   roomId: string;
@@ -9,7 +8,7 @@ interface UseRoomSocketParams {
 }
 
 export function useRoomSocket({ roomId, isAuthenticated }: UseRoomSocketParams) {
-  const [messages, setMessages] = useState<Array<Message>>([]);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (!roomId || !isAuthenticated) {
@@ -18,10 +17,7 @@ export function useRoomSocket({ roomId, isAuthenticated }: UseRoomSocketParams) 
 
     socket.emit('join-room', roomId);
 
-    const messageHandler = (message: Parameters<ServerToClientEvents['message']>[0]) => {
-      setMessages((prev) => [...prev, { ...message, timestamp: new Date().toISOString() }]);
-    };
-
+    const messageHandler = () => queryClient.invalidateQueries({ queryKey: ['room', roomId] });
     socket.on('message', messageHandler);
 
     return () => {
@@ -30,5 +26,5 @@ export function useRoomSocket({ roomId, isAuthenticated }: UseRoomSocketParams) 
     };
   }, [roomId, isAuthenticated]);
 
-  return { messages };
+  return null;
 }

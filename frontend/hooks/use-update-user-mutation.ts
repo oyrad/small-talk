@@ -8,7 +8,6 @@ interface UpdateUserParams {
 }
 
 async function updateUser({ userId, data }: UpdateUserParams): Promise<User> {
-  console.log({ userId, data });
   const res = await fetchWithPrefix(`user/${userId}`, {
     method: 'PATCH',
     headers: {

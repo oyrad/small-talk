@@ -5,27 +5,70 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, useState } from 'react';
+import { useDeleteRoomMutation } from '@/hooks/use-delete-room-mutation';
+import { useRouter } from 'next/navigation';
+import { Copy, SquarePen, Trash, UserRoundPen } from 'lucide-react';
+import { ChangeUserAlias } from '@/app/room/[room]/_components/ChangeUserAlias';
+import { ChangeRoomName } from '@/app/room/[room]/_components/ChangeRoomName';
 
 interface HeaderDropDownMenuProps extends PropsWithChildren {
   onCopyLink: VoidFunction;
-  onRoomDelete: VoidFunction;
+  userId: string;
+  roomCreatorId: string;
+  roomId: string;
 }
 
-export function HeaderDropDownMenu({ onCopyLink, onRoomDelete, children }: HeaderDropDownMenuProps) {
+export function HeaderDropDownMenu({ onCopyLink, userId, roomCreatorId, roomId, children }: HeaderDropDownMenuProps) {
+  const [isAliasDialogOpen, setIsAliasDialogOpen] = useState(false);
+  const [isRoomNameDialogOpen, setIsRoomNameDialogOpen] = useState(false);
+
+  const { push } = useRouter();
+
+  const isUserRoomCreator = userId === roomCreatorId;
+
+  const { mutate: deleteRoom } = useDeleteRoomMutation({
+    onSuccess: () => {
+      push('/');
+    },
+  });
+
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger>{children}</DropdownMenuTrigger>
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger>{children}</DropdownMenuTrigger>
 
-      <DropdownMenuContent className="mr-4">
-        <DropdownMenuItem onClick={onCopyLink}>Copy room link</DropdownMenuItem>
+        <DropdownMenuContent className="mr-4">
+          <DropdownMenuItem onClick={onCopyLink}>
+            <Copy />
+            Copy room link
+          </DropdownMenuItem>
 
-        <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => setIsAliasDialogOpen(true)}>
+            <UserRoundPen />
+            Change user alias
+          </DropdownMenuItem>
 
-        <DropdownMenuItem className="text-red-600" onClick={onRoomDelete}>
-          Delete room
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+          {isUserRoomCreator && (
+            <>
+              <DropdownMenuItem onClick={() => setIsRoomNameDialogOpen(true)}>
+                <SquarePen />
+                Change room name
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuItem className="text-red-600" onClick={() => deleteRoom(roomId)}>
+                <Trash className="text-red-600" />
+                Delete room
+              </DropdownMenuItem>
+            </>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <ChangeUserAlias userId={userId} isOpen={isAliasDialogOpen} setIsOpen={setIsAliasDialogOpen} />
+      <ChangeRoomName roomId={roomId} isOpen={isRoomNameDialogOpen} setIsOpen={setIsRoomNameDialogOpen} />
+    </>
   );
 }

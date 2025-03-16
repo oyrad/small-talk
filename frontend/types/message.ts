@@ -1,7 +1,8 @@
+import { User } from '@/types/user';
+
 export interface Message {
-  roomId: string;
+  id: string;
   content: string;
-  userId: string;
-  userAlias: string | null;
-  timestamp: string;
+  createdAt: string;
+  user: User;
 }

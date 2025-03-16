@@ -1,5 +1,6 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common';
 import { RoomService } from './room.service';
+import { Room } from './room.entity';
 
 @Controller('room')
 export class RoomController {
@@ -13,6 +14,11 @@ export class RoomController {
   @Get(':id')
   async getRoom(@Param('id') id: string) {
     return this.roomService.getRoomById(id);
+  }
+
+  @Patch(':id')
+  async updateRoom(@Param('id') id: string, @Body() data: Partial<Room>) {
+    return this.roomService.updateRoomById(id, data);
   }
 
   @Delete(':id')
