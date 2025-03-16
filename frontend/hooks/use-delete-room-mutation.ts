@@ -1,7 +1,8 @@
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
+import { fetchWithPrefix } from '@/utils/fetch-with-prefix';
 
 async function deleteRoom(id: string) {
-  await fetch(`http://localhost:5542/room/${id}`, {
+  await fetchWithPrefix(`room/${id}`, {
     method: 'DELETE',
   });
 }

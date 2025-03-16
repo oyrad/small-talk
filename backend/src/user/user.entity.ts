@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Room } from '../room/room.entity';
 
 @Entity()
 export class User {
@@ -7,6 +8,12 @@ export class User {
 
   @Column({ nullable: true })
   alias: string;
+
+  @ManyToMany(() => Room, (room) => room.users)
+  rooms: Array<Room>;
+
+  @OneToMany(() => Room, (room) => room.creator)
+  createdRooms: Array<Room>;
 
   @CreateDateColumn()
   createdAt: Date;

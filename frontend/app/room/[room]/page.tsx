@@ -29,7 +29,7 @@ export default function Room() {
   const { data: room } = useGetRoomByIdQuery(roomId);
   const { mutateAsync: validatePassword } = useValidatePasswordMutation(roomId);
 
-  const isAuthenticated = !!room && !!userId && room.users.includes(userId);
+  const isAuthenticated = !!room?.password && room.users.some((user) => user.id === userId);
 
   const { messages } = useRoomSocket({ roomId, isAuthenticated });
 

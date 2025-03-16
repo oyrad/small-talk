@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { User } from '../user/user.entity';
 
 @Entity()
 export class Room {
@@ -11,8 +12,12 @@ export class Room {
   @Column({ nullable: true })
   password?: string;
 
-  @Column('text', { array: true, default: [] })
-  users: Array<string>;
+  @ManyToMany(() => User, (user) => user.rooms)
+  @JoinTable()
+  users: Array<User>;
+
+  @ManyToOne(() => User, (user) => user.createdRooms)
+  creator: User;
 
   @CreateDateColumn()
   createdAt: Date;

@@ -1,11 +1,12 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
+import { fetchWithPrefix } from '@/utils/fetch-with-prefix';
 
 interface ValidatePasswordResponse {
   success: boolean;
 }
 
 async function validatePassword(roomId: string, userId: string, password: string): Promise<ValidatePasswordResponse> {
-  const res = await fetch(`http://localhost:5542/room/${roomId}/validate-password`, {
+  const res = await fetchWithPrefix(`room/${roomId}/validate-password`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

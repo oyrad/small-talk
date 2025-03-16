@@ -1,5 +1,6 @@
 import { User } from '@/types/user';
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
+import { fetchWithPrefix } from '@/utils/fetch-with-prefix';
 
 interface UpdateUserParams {
   userId: string;
@@ -8,7 +9,7 @@ interface UpdateUserParams {
 
 async function updateUser({ userId, data }: UpdateUserParams): Promise<User> {
   console.log({ userId, data });
-  const res = await fetch(`http://localhost:5542/user/${userId}`, {
+  const res = await fetchWithPrefix(`user/${userId}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',

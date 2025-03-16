@@ -1,8 +1,9 @@
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 import { User } from '@/types/user';
+import { fetchWithPrefix } from '@/utils/fetch-with-prefix';
 
 async function createUser(): Promise<User> {
-  const res = await fetch('http://localhost:5542/user', {
+  const res = await fetchWithPrefix('user', {
     method: 'POST',
   });
 

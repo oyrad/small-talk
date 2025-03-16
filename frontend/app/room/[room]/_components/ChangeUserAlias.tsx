@@ -31,22 +31,18 @@ export function ChangeUserAlias({ userId, children }: ChangeUserAliasProps) {
     },
   });
 
-  const { mutateAsync: updateUser } = useUpdateUserMutation({
+  const { mutate: updateUser } = useUpdateUserMutation({
     onSuccess: (data) => {
       setUserAlias(data.alias);
+      setIsOpen(false);
     },
   });
-
-  async function onSubmit({ alias }: ChangeUserAliasFormValues) {
-    await updateUser({ userId, data: { alias } });
-    setIsOpen(false);
-  }
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(({ alias }) => updateUser({ userId, data: { alias } }))}>
           <DialogHeader>
             <DialogTitle className="text-left mb-2">Change user alias</DialogTitle>
             <DialogDescription className="flex gap-2">
