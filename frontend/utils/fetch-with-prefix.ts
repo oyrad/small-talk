@@ -1,3 +1,3 @@
 export function fetchWithPrefix(url: string, options?: RequestInit) {
-  return fetch(`http://localhost:5542/${url}`, options);
+  return fetch(`${process.env.NEXT_PUBLIC_API_URL}${url}`, options);
 }
