@@ -5,8 +5,8 @@ import { Room } from '../room/room.entity';
 import { Repository } from 'typeorm';
 
 @Injectable()
-export class TasksService {
-  private readonly logger = new Logger(TasksService.name);
+export class TaskService {
+  private readonly logger = new Logger(TaskService.name);
 
   constructor(
     @InjectRepository(Room)

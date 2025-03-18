@@ -6,6 +6,7 @@ import { UserModule } from './user/user.module';
 import { MessageModule } from './message/message.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
+import { TaskModule } from './task/task.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     RoomModule,
     UserModule,
     MessageModule,
+    TaskModule,
   ],
   providers: [ChatGateway],
 })
