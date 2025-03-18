@@ -44,8 +44,12 @@ export default function Room() {
     },
   });
 
-  function onMessageSubmit(values: MessageFormValues) {
-    sendMessage({ roomId: room?.id ?? '', userId: userId ?? '', content: values.message });
+  function onMessageSubmit({ message }: MessageFormValues) {
+    if (!message) {
+      return;
+    }
+
+    sendMessage({ roomId: room?.id ?? '', userId: userId ?? '', content: message });
   }
 
   function copyRoomLink() {
