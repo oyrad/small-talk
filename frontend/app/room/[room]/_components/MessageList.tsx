@@ -66,7 +66,7 @@ export function MessageList({ messages }: MessageListProps) {
           <div
             className={cn(
               'flex gap-1.5 text-sm w-fit max-w-[70%] items-end',
-              msg.user.id === userId && 'place-self-end flex-row-reverse',
+              msg.user.id === userId && 'ml-auto flex-row-reverse',
             )}
           >
             <Card
