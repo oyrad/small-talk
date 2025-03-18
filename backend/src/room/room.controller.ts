@@ -2,7 +2,7 @@ import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post 
 import { RoomService } from './room.service';
 import { Room } from './room.entity';
 
-@Controller('room')
+@Controller('api/room')
 export class RoomController {
   constructor(private readonly roomService: RoomService) {}
 
