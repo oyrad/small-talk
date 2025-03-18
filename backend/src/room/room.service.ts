@@ -36,7 +36,15 @@ export class RoomService {
 
   async getRoomById(id: string) {
     this.logger.log(`Fetching room by ID: ${id}`);
-    return this.roomRepository.findOne({ where: { id }, relations: ['users', 'creator', 'messages'] });
+    return this.roomRepository.findOne({
+      where: { id },
+      relations: ['users', 'creator', 'messages'],
+      order: {
+        messages: {
+          createdAt: 'ASC',
+        },
+      },
+    });
   }
 
   async updateRoomById(id: string, data: Partial<Room>) {
