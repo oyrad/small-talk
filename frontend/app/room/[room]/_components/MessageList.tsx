@@ -1,13 +1,12 @@
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { useUserStore } from '@/stores/use-user-store';
-import { useEffect, useRef, useState } from 'react';
-import { Button } from '@/components/ui/button';
+import { useEffect, useRef } from 'react';
 import { getMessageTime } from '@/utils/get-message-time';
 import { Message } from '@/types/message';
 
 function MessageTimestamp({ timestamp }: { timestamp: string }) {
-  return <p className="text-gray-400 text-[0.70rem]">{getMessageTime(timestamp)}</p>;
+  return <p className="text-gray-400 text-[0.70rem] whitespace-nowrap">{getMessageTime(timestamp)}</p>;
 }
 
 interface MessageListProps {
@@ -15,46 +14,18 @@ interface MessageListProps {
 }
 
 export function MessageList({ messages }: MessageListProps) {
-  const [showNewMessagesBanner, setShowNewMessagesBanner] = useState(false);
   const { userId } = useUserStore();
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  const messageListRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (!messagesEndRef.current || !messageListRef.current || !messages.length) return;
+    if (!messagesEndRef.current || !messages.length) return;
 
-    if (messages[messages.length - 1]?.user.id === userId) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'instant' });
-      setShowNewMessagesBanner(false);
-    } else {
-      const isAtBottom =
-        messageListRef.current.scrollHeight <=
-        messageListRef.current.scrollTop + messageListRef.current.clientHeight + 5;
-
-      if (isAtBottom) return;
-
-      setShowNewMessagesBanner(true);
-    }
+    messagesEndRef.current.scrollIntoView({ behavior: 'instant' });
   }, [messages, userId]);
 
-  const handleScroll = () => {
-    if (!messageListRef.current) return;
-
-    const bottom =
-      messageListRef.current.scrollHeight === messageListRef.current.scrollTop + messageListRef.current.clientHeight;
-
-    if (bottom) {
-      setShowNewMessagesBanner(false);
-    }
-  };
-
   return (
-    <div
-      ref={messageListRef}
-      className="flex flex-col flex-grow min-h-0 overflow-y-auto gap-1 relative px-2"
-      onScroll={handleScroll}
-    >
+    <div className="flex flex-col flex-grow min-h-0 overflow-y-auto gap-1 relative px-2 break-all">
       {messages.map((msg, index) => (
         <div key={index}>
           {msg.user.id !== messages[index - 1]?.user.id && (
@@ -63,16 +34,11 @@ export function MessageList({ messages }: MessageListProps) {
             </p>
           )}
 
-          <div
-            className={cn(
-              'flex gap-1.5 text-sm w-fit max-w-[70%] items-end',
-              msg.user.id === userId && 'ml-auto flex-row-reverse',
-            )}
-          >
+          <div className={cn('flex gap-1 text-sm items-end', msg.user.id === userId && 'ml-auto flex-row-reverse')}>
             <Card
               key={index}
               className={cn(
-                'px-3 py-1 bg-gray-200 text-black rounded-full border-none',
+                'px-3 py-1 bg-gray-200 text-black rounded-xl border-none',
                 msg.user.id === userId && 'bg-gray-700 text-white',
               )}
             >
@@ -85,19 +51,6 @@ export function MessageList({ messages }: MessageListProps) {
       ))}
 
       <div ref={messagesEndRef} />
-
-      {showNewMessagesBanner && (
-        <Button
-          onClick={() => {
-            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-            setShowNewMessagesBanner(false);
-          }}
-          className="fixed bottom-16 left-[50%] transform -translate-x-1/2"
-          variant="outline"
-        >
-          New message
-        </Button>
-      )}
     </div>
   );
 }
