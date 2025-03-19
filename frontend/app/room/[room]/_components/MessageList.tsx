@@ -52,7 +52,7 @@ export function MessageList({ messages }: MessageListProps) {
   return (
     <div
       ref={messageListRef}
-      className="flex flex-col flex-grow min-h-0 overflow-y-auto gap-1 relative scrollbar-hide"
+      className="flex flex-col flex-grow min-h-0 overflow-y-auto gap-1 relative px-2"
       onScroll={handleScroll}
     >
       {messages.map((msg, index) => (
