@@ -10,6 +10,16 @@ function MessageTimestamp({ timestamp }: { timestamp: string }) {
   return <p className="text-gray-400 text-[0.70rem] whitespace-nowrap">{getMessageTime(timestamp)}</p>;
 }
 
+function DateMarker({ date, className = '' }: { date: string; className?: string }) {
+  return (
+    <p
+      className={cn('text-xs text-center bg-stone-100 text-slate-800 mx-auto px-3 py-0.5 rounded-lg w-fit', className)}
+    >
+      {date}
+    </p>
+  );
+}
+
 interface MessageListProps {
   messages: Array<Message>;
 }
@@ -34,16 +44,10 @@ export function MessageList({ messages }: MessageListProps) {
     >
       {messages.map((msg, index) => (
         <div key={index}>
-          {index === 0 && (
-            <p className="text-xs text-center my-2 bg-slate-200 text-slate-800 w-fit mx-auto px-3 py-0.5 rounded-lg">
-              {new Date(msg.createdAt).toLocaleDateString()}
-            </p>
-          )}
+          {index === 0 && <DateMarker date={new Date(msg.createdAt).toLocaleDateString()} className="mb-2 " />}
 
           {index !== 0 && !isSameDay(new Date(msg?.createdAt), new Date(messages[index - 1].createdAt)) && (
-            <p className="text-xs text-center my-2 bg-slate-200 text-slate-800 w-fit mx-auto px-3 py-0.5 rounded-lg">
-              {new Date(msg.createdAt).toLocaleDateString()}
-            </p>
+            <DateMarker date={new Date(msg.createdAt).toLocaleDateString()} className="my-3" />
           )}
 
           {msg.user.id !== messages[index - 1]?.user.id && (
@@ -57,7 +61,7 @@ export function MessageList({ messages }: MessageListProps) {
               key={index}
               className={cn(
                 'px-3 py-1 bg-gray-200 text-black rounded-xl border-none',
-                msg.user.id === userId && 'bg-gray-800 text-white',
+                msg.user.id === userId && 'bg-gray-700 text-white',
               )}
             >
               {msg.content}
