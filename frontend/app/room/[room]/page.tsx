@@ -1,6 +1,6 @@
 'use client';
 
-import { socket } from '@/socket';
+import { socket } from '@/socket/socket';
 import { useParams, useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/card';
 import { toast } from 'sonner';

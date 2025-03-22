@@ -1,4 +1,4 @@
-import { socket } from '@/socket';
+import { socket } from '@/socket/socket';
 import { useEffect, useState } from 'react';
 
 export function useMessagesSocket() {
