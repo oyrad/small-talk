@@ -25,7 +25,12 @@ export function MessageList({ messages }: MessageListProps) {
   }, [messages, userId]);
 
   return (
-    <div className="flex flex-col flex-grow min-h-0 overflow-y-auto gap-1 relative px-2 break-words">
+    <div
+      className="flex flex-col flex-grow min-h-0 overflow-y-auto gap-1 relative px-2"
+      style={{
+        overflowWrap: 'anywhere',
+      }}
+    >
       {messages.map((msg, index) => (
         <div key={index}>
           {msg.user.id !== messages[index - 1]?.user.id && (
