@@ -4,6 +4,7 @@ import { useUserStore } from '@/stores/use-user-store';
 import { useEffect, useRef } from 'react';
 import { getMessageTime } from '@/utils/get-message-time';
 import { Message } from '@/types/message';
+import { isSameDay } from 'date-fns';
 
 function MessageTimestamp({ timestamp }: { timestamp: string }) {
   return <p className="text-gray-400 text-[0.70rem] whitespace-nowrap">{getMessageTime(timestamp)}</p>;
@@ -33,6 +34,18 @@ export function MessageList({ messages }: MessageListProps) {
     >
       {messages.map((msg, index) => (
         <div key={index}>
+          {index === 0 && (
+            <p className="text-xs text-center my-2 bg-slate-200 text-slate-800 w-fit mx-auto px-3 py-0.5 rounded-lg">
+              {new Date(msg.createdAt).toLocaleDateString()}
+            </p>
+          )}
+
+          {index !== 0 && !isSameDay(new Date(msg?.createdAt), new Date(messages[index - 1].createdAt)) && (
+            <p className="text-xs text-center my-2 bg-slate-200 text-slate-800 w-fit mx-auto px-3 py-0.5 rounded-lg">
+              {new Date(msg.createdAt).toLocaleDateString()}
+            </p>
+          )}
+
           {msg.user.id !== messages[index - 1]?.user.id && (
             <p className={cn('text-gray-700 text-xs mb-1', msg.user.id === userId && 'text-right')}>
               {msg.user.alias ?? msg.user.id}
