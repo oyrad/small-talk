@@ -15,7 +15,7 @@ import { useRoomSocket } from '@/hooks/use-room-socket';
 import { useSendMessageMutation } from '@/hooks/use-send-message-mutation';
 import { HeaderDropDownMenu } from '@/app/room/[room]/_components/HeaderDropDownMenu';
 import { Button } from '@/components/ui/button';
-import { Settings } from 'lucide-react';
+import { Send, Settings } from 'lucide-react';
 
 interface MessageFormValues {
   message: string;
@@ -33,7 +33,7 @@ export default function Room() {
   const { data: room } = useGetRoomByIdQuery(roomId);
   const { mutateAsync: validatePassword } = useValidatePasswordMutation(roomId);
 
-  const isAuthenticated = !!room?.password && room.users.some((user) => user.id === userId);
+  const isAuthenticated = !room?.hasPassword || (room && room.users.some((user) => user.id === userId));
 
   useRoomSocket({ roomId, isAuthenticated });
 
@@ -65,7 +65,7 @@ export default function Room() {
     }
   }
 
-  if (room?.password && !isAuthenticated) {
+  if (room?.hasPassword && !isAuthenticated) {
     return <PasswordPrompt onValidatePassword={onValidatePassword} />;
   }
 
@@ -99,8 +99,11 @@ export default function Room() {
 
       <MessageList messages={room?.messages ?? []} />
 
-      <form onSubmit={handleSubmit(onMessageSubmit)}>
+      <form onSubmit={handleSubmit(onMessageSubmit)} className="flex gap-2">
         <Input {...register('message')} className="border border-gray-400 w-full" placeholder="Message" />
+        <Button>
+          <Send />
+        </Button>
       </form>
     </div>
   );

@@ -11,6 +11,7 @@ import {
 import { PropsWithChildren } from 'react';
 import { useUpdateRoomMutation } from '@/hooks/use-update-room-mutation';
 import { useForm } from 'react-hook-form';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface ChangeRoomNameFormValues {
   name: string;
@@ -23,11 +24,14 @@ interface ChangeRoomNameProps extends PropsWithChildren {
 }
 
 export function ChangeRoomName({ roomId, isOpen, setIsOpen, children }: ChangeRoomNameProps) {
+  const queryClient = useQueryClient();
+
   const { register, handleSubmit } = useForm<ChangeRoomNameFormValues>();
 
   const { mutate: updateRoom } = useUpdateRoomMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
       setIsOpen(false);
+      await queryClient.invalidateQueries({ queryKey: ['room', roomId] });
     },
   });
 

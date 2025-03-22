@@ -12,6 +12,7 @@ import { useForm } from 'react-hook-form';
 import { useUserStore } from '@/stores/use-user-store';
 import { PropsWithChildren } from 'react';
 import { useUpdateUserMutation } from '@/hooks/use-update-user-mutation';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface ChangeUserAliasFormValues {
   alias: string;
@@ -21,10 +22,12 @@ interface ChangeUserAliasProps extends PropsWithChildren {
   userId: string;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
+  roomId?: string;
 }
 
-export function ChangeUserAlias({ userId, isOpen, setIsOpen, children }: ChangeUserAliasProps) {
+export function ChangeUserAlias({ userId, isOpen, setIsOpen, children, roomId }: ChangeUserAliasProps) {
   const { setUserAlias } = useUserStore();
+  const queryClient = useQueryClient();
 
   const { register, handleSubmit } = useForm<ChangeUserAliasFormValues>({
     defaultValues: {
@@ -33,9 +36,13 @@ export function ChangeUserAlias({ userId, isOpen, setIsOpen, children }: ChangeU
   });
 
   const { mutate: updateUser } = useUpdateUserMutation({
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       setUserAlias(data.alias);
       setIsOpen(false);
+
+      if (roomId) {
+        await queryClient.invalidateQueries({ queryKey: ['room', roomId] });
+      }
     },
   });
 

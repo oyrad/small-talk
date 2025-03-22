@@ -1,4 +1,4 @@
-import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
+import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 import { fetchWithPrefix } from '@/utils/fetch-with-prefix';
 import { Room } from '@/types/room';
 
@@ -20,14 +20,10 @@ async function updateRoom({ id, data }: UpdateRoomParams): Promise<Room> {
 }
 
 export function useUpdateRoomMutation(options?: Omit<UseMutationOptions<Room, Error, UpdateRoomParams>, 'mutationFn'>) {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: updateRoom,
     onSuccess: (...args) => {
       options?.onSuccess?.(...args);
-
-      return queryClient.invalidateQueries({ queryKey: ['room', args[1].id] });
     },
     ...options,
   });

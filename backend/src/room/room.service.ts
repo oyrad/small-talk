@@ -36,7 +36,26 @@ export class RoomService {
 
   async getRoomById(id: string) {
     this.logger.log(`Fetching room by ID: ${id}`);
-    return this.roomRepository.findOne({
+    const room = await this.roomRepository.findOne({
+      where: { id },
+      relations: ['users', 'creator', 'messages'],
+      order: {
+        messages: {
+          createdAt: 'ASC',
+        },
+      },
+    });
+
+    const { password, ...roomWithoutPassword } = room;
+
+    return {
+      ...roomWithoutPassword,
+      hasPassword: !!password,
+    };
+  }
+
+  async getRoomByIdWithPassword(id: string) {
+    return await this.roomRepository.findOne({
       where: { id },
       relations: ['users', 'creator', 'messages'],
       order: {
@@ -58,14 +77,9 @@ export class RoomService {
     return updatedRoom;
   }
 
-  async deleteRoom(id: string) {
-    this.logger.warn(`Deleting room with ID: ${id}`);
-    return this.roomRepository.delete({ id });
-  }
-
   async validateRoomPassword(roomId: string, userId: string, password: string) {
     this.logger.log(`Validating password for room ID: ${roomId}`);
-    const room = await this.getRoomById(roomId);
+    const room = await this.getRoomByIdWithPassword(roomId);
     if (!room) {
       throw new Error('Room not found');
     }

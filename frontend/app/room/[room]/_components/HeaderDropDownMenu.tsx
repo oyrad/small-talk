@@ -2,13 +2,10 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { PropsWithChildren, useState } from 'react';
-import { useDeleteRoomMutation } from '@/hooks/use-delete-room-mutation';
-import { useRouter } from 'next/navigation';
-import { Copy, SquarePen, Trash, UserRoundPen } from 'lucide-react';
+import { Copy, SquarePen, UserRoundPen } from 'lucide-react';
 import { ChangeUserAlias } from '@/app/room/[room]/_components/ChangeUserAlias';
 import { ChangeRoomName } from '@/app/room/[room]/_components/ChangeRoomName';
 
@@ -23,15 +20,7 @@ export function HeaderDropDownMenu({ onCopyLink, userId, roomCreatorId, roomId, 
   const [isAliasDialogOpen, setIsAliasDialogOpen] = useState(false);
   const [isRoomNameDialogOpen, setIsRoomNameDialogOpen] = useState(false);
 
-  const { push } = useRouter();
-
   const isUserRoomCreator = userId === roomCreatorId;
-
-  const { mutate: deleteRoom } = useDeleteRoomMutation({
-    onSuccess: () => {
-      push('/');
-    },
-  });
 
   return (
     <>
@@ -55,19 +44,12 @@ export function HeaderDropDownMenu({ onCopyLink, userId, roomCreatorId, roomId, 
                 <SquarePen />
                 Change room name
               </DropdownMenuItem>
-
-              <DropdownMenuSeparator />
-
-              <DropdownMenuItem className="text-red-600" onClick={() => deleteRoom(roomId)}>
-                <Trash className="text-red-600" />
-                Delete room
-              </DropdownMenuItem>
             </>
           )}
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <ChangeUserAlias userId={userId} isOpen={isAliasDialogOpen} setIsOpen={setIsAliasDialogOpen} />
+      <ChangeUserAlias userId={userId} roomId={roomId} isOpen={isAliasDialogOpen} setIsOpen={setIsAliasDialogOpen} />
       <ChangeRoomName roomId={roomId} isOpen={isRoomNameDialogOpen} setIsOpen={setIsRoomNameDialogOpen} />
     </>
   );
