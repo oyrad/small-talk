@@ -26,7 +26,7 @@ export function MessageList({ messages }: MessageListProps) {
 
   return (
     <div
-      className="flex flex-col flex-grow min-h-0 overflow-y-auto gap-1 relative px-2"
+      className="flex flex-col flex-grow min-h-0 overflow-y-auto gap-1 relative px-2 whitespace-pre-wrap"
       style={{
         overflowWrap: 'anywhere',
       }}

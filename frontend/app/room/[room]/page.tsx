@@ -1,9 +1,7 @@
 'use client';
 
 import { socket } from '@/socket';
-import { useForm } from 'react-hook-form';
 import { useParams, useRouter } from 'next/navigation';
-import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { useUserStore } from '@/stores/use-user-store';
@@ -17,21 +15,17 @@ import { HeaderDropDownMenu } from '@/app/room/[room]/_components/HeaderDropDown
 import { Button } from '@/components/ui/button';
 import { Send, Settings } from 'lucide-react';
 import { HashLoader } from 'react-spinners';
-
-interface MessageFormValues {
-  message: string;
-}
+import TextareaAutosize from 'react-textarea-autosize';
+import { cn } from '@/lib/utils';
+import { FormEvent, useRef, useState } from 'react';
 
 export default function Room() {
+  const [message, setMessage] = useState('');
   const { room: roomId } = useParams<{ room: string }>();
 
   const { userId, userAlias } = useUserStore();
-
   const { push } = useRouter();
-
-  const { register, handleSubmit, reset } = useForm<MessageFormValues>({
-    defaultValues: { message: '' },
-  });
+  const messageInputRef = useRef<HTMLTextAreaElement | null>(null);
 
   const { data: room, isPending: isRoomPending, error: roomError } = useGetRoomByIdQuery(roomId);
   const { mutateAsync: validatePassword } = useValidatePasswordMutation(roomId);
@@ -43,11 +37,14 @@ export default function Room() {
   const { mutate: sendMessage } = useSendMessageMutation({
     onSuccess: (message) => {
       socket.emit('message', { roomId: room?.id ?? '', content: message.content, userId: userId ?? '', userAlias });
-      reset();
+      setMessage('');
     },
   });
 
-  function onMessageSubmit({ message }: MessageFormValues) {
+  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    messageInputRef.current?.focus();
+
     if (!message) {
       return;
     }
@@ -122,8 +119,18 @@ export default function Room() {
 
       <MessageList messages={room?.messages ?? []} />
 
-      <form onSubmit={handleSubmit(onMessageSubmit)} className="flex gap-2">
-        <Input {...register('message')} className="border border-gray-400 w-full" placeholder="Message" />
+      <form onSubmit={handleSubmit} className="flex gap-2 items-center">
+        <TextareaAutosize
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          className={cn(
+            'border-input placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground flex w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none md:text-sm',
+            'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',
+          )}
+          placeholder="Message"
+          maxRows={4}
+          ref={messageInputRef}
+        />
         <Button>
           <Send />
         </Button>

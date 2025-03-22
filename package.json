@@ -12,9 +12,7 @@
     "start": "concurrently \"cd backend && yarn start\" \"cd frontend && yarn start\""
   },
   "devDependencies": {
-    "concurrently": "9.1.2"
-  },
-  "dependencies": {
+    "concurrently": "9.1.2",
     "prettier": "^3.5.3"
   }
 }
