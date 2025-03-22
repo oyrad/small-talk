@@ -2,7 +2,7 @@
 
 import { socket } from '@/socket';
 import { useForm } from 'react-hook-form';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { toast } from 'sonner';
@@ -16,6 +16,7 @@ import { useSendMessageMutation } from '@/hooks/use-send-message-mutation';
 import { HeaderDropDownMenu } from '@/app/room/[room]/_components/HeaderDropDownMenu';
 import { Button } from '@/components/ui/button';
 import { Send, Settings } from 'lucide-react';
+import { HashLoader } from 'react-spinners';
 
 interface MessageFormValues {
   message: string;
@@ -26,11 +27,13 @@ export default function Room() {
 
   const { userId, userAlias } = useUserStore();
 
+  const { push } = useRouter();
+
   const { register, handleSubmit, reset } = useForm<MessageFormValues>({
     defaultValues: { message: '' },
   });
 
-  const { data: room } = useGetRoomByIdQuery(roomId);
+  const { data: room, isPending: isRoomPending, error: roomError } = useGetRoomByIdQuery(roomId);
   const { mutateAsync: validatePassword } = useValidatePasswordMutation(roomId);
 
   const isAuthenticated = !room?.hasPassword || (room && room.users.some((user) => user.id === userId));
@@ -63,6 +66,26 @@ export default function Room() {
     if (!res.success) {
       toast.error('Invalid password');
     }
+  }
+
+  if (isRoomPending) {
+    return (
+      <div className="grid place-items-center h-full">
+        <HashLoader size={100} />
+      </div>
+    );
+  }
+
+  if (!room || roomError) {
+    return (
+      <div className="grid place-items-center p-4 h-full">
+        <Card className="p-2 gap-0 text-sm w-full">
+          <p>Room not found with id:</p>
+          <p className="font-semibold text-xs mb-2">{roomId}</p>
+          <Button onClick={() => push('/')}>Home</Button>
+        </Card>
+      </div>
+    );
   }
 
   if (room?.hasPassword && !isAuthenticated) {

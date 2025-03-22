@@ -39,7 +39,7 @@ export function MessageList({ messages }: MessageListProps) {
               key={index}
               className={cn(
                 'px-3 py-1 bg-gray-200 text-black rounded-xl border-none',
-                msg.user.id === userId && 'bg-gray-700 text-white',
+                msg.user.id === userId && 'bg-gray-800 text-white',
               )}
             >
               {msg.content}
