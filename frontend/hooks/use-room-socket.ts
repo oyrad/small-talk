@@ -1,17 +1,18 @@
 import { useEffect } from 'react';
 import { socket } from '@/socket/socket';
 import { useQueryClient } from '@tanstack/react-query';
+import { Room } from '@/types/room';
 
 interface UseRoomSocketParams {
-  roomId: string;
+  room: Room | undefined;
   isAuthenticated: boolean;
 }
 
-export function useRoomSocket({ roomId, isAuthenticated }: UseRoomSocketParams) {
+export function useRoomSocket({ room, isAuthenticated }: UseRoomSocketParams) {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    if (!roomId || !isAuthenticated) {
+    if (!room || !isAuthenticated) {
       return;
     }
 
@@ -19,12 +20,12 @@ export function useRoomSocket({ roomId, isAuthenticated }: UseRoomSocketParams) 
       if (!socket.connected) {
         socket.connect();
       }
-      socket.emit('join-room', roomId);
+      socket.emit('join-room', room.id);
     };
 
     connectSocket();
 
-    const messageHandler = () => queryClient.invalidateQueries({ queryKey: ['room', roomId] });
+    const messageHandler = () => queryClient.invalidateQueries({ queryKey: ['room', room.id] });
     socket.on('message', messageHandler);
 
     const handleVisibilityChange = () => {
@@ -37,11 +38,11 @@ export function useRoomSocket({ roomId, isAuthenticated }: UseRoomSocketParams) 
 
     return () => {
       socket.off('message', messageHandler);
-      socket.emit('leave-room', roomId);
+      socket.emit('leave-room', room.id);
       socket.disconnect();
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [roomId, isAuthenticated, queryClient]);
+  }, [room, isAuthenticated, queryClient]);
 
   return null;
 }

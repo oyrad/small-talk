@@ -5,6 +5,7 @@ import { useEffect, useRef } from 'react';
 import { getMessageTime } from '@/utils/get-message-time';
 import { Message } from '@/types/message';
 import { isSameDay } from 'date-fns';
+import Linkify from 'linkify-react';
 
 function MessageTimestamp({ timestamp }: { timestamp: string }) {
   return <p className="text-gray-400 text-[0.70rem] whitespace-nowrap">{getMessageTime(timestamp)}</p>;
@@ -64,7 +65,7 @@ export function MessageList({ messages }: MessageListProps) {
                 msg.user.id === userId && 'bg-gray-700 text-white',
               )}
             >
-              {msg.content}
+              <Linkify>{msg.content}</Linkify>
             </Card>
 
             <MessageTimestamp timestamp={msg.createdAt} />

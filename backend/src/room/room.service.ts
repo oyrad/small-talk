@@ -1,9 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { Room } from './room.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from '../user/user.entity';
+import { isUUID } from 'class-validator';
 
 @Injectable()
 export class RoomService {
@@ -35,6 +36,10 @@ export class RoomService {
   }
 
   async getRoomById(id: string) {
+    if (!isUUID(id)) {
+      throw new BadRequestException('Invalid room ID');
+    }
+
     this.logger.log(`Fetching room by ID: ${id}`);
     const room = await this.roomRepository.findOne({
       where: { id },

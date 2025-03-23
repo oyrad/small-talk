@@ -32,7 +32,7 @@ export default function Room() {
 
   const isAuthenticated = !room?.hasPassword || (room && room.users.some((user) => user.id === userId));
 
-  useRoomSocket({ roomId, isAuthenticated });
+  useRoomSocket({ room, isAuthenticated });
 
   const { mutate: sendMessage } = useSendMessageMutation({
     onSuccess: (message) => {
@@ -45,7 +45,7 @@ export default function Room() {
     e.preventDefault();
     messageInputRef.current?.focus();
 
-    if (!message) {
+    if (!message.trim().length) {
       return;
     }
 
@@ -75,7 +75,7 @@ export default function Room() {
 
   if (!room || roomError) {
     return (
-      <div className="grid place-items-center p-4 h-full">
+      <div className="grid place-items-center p-8 h-full">
         <Card className="p-2 gap-0 text-sm w-full">
           <p>Room not found with id:</p>
           <p className="font-semibold text-xs mb-2">{roomId}</p>

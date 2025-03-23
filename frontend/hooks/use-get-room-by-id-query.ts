@@ -4,6 +4,11 @@ import { fetchWithPrefix } from '@/utils/fetch-with-prefix';
 
 async function getRoomById(id: string): Promise<Room> {
   const response = await fetchWithPrefix(`room/${id}`);
+
+  if (!response.ok) {
+    throw new Error(response.statusText);
+  }
+
   return response.json();
 }
 
