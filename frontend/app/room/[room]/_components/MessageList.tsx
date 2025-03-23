@@ -65,7 +65,15 @@ export function MessageList({ messages }: MessageListProps) {
                 msg.user.id === userId && 'bg-gray-700 text-white',
               )}
             >
-              <Linkify>{msg.content}</Linkify>
+              <Linkify
+                options={{
+                  className: msg.user.id === userId ? 'text-blue-300 underline' : 'text-blue-700 underline',
+                  target: '_blank',
+                  rel: 'noopener noreferrer',
+                }}
+              >
+                {msg.content}
+              </Linkify>
             </Card>
 
             <MessageTimestamp timestamp={msg.createdAt} />
