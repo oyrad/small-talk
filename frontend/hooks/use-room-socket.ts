@@ -12,25 +12,21 @@ export function useRoomSocket({ room, isAuthenticated }: UseRoomSocketParams) {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    if (!room || !isAuthenticated) {
-      return;
+    if (!room || !isAuthenticated) return;
+
+    if (!socket.connected) {
+      socket.connect();
     }
 
-    const connectSocket = () => {
-      if (!socket.connected) {
-        socket.connect();
-      }
-      socket.emit('join-room', room.id);
-    };
-
-    connectSocket();
+    socket.emit('join-room', room.id);
 
     const messageHandler = () => queryClient.invalidateQueries({ queryKey: ['room', room.id] });
     socket.on('message', messageHandler);
 
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible') {
-        connectSocket();
+      if (document.visibilityState === 'visible' && !socket.connected) {
+        socket.connect();
+        socket.emit('join-room', room.id);
       }
     };
 
@@ -39,10 +35,9 @@ export function useRoomSocket({ room, isAuthenticated }: UseRoomSocketParams) {
     return () => {
       socket.off('message', messageHandler);
       socket.emit('leave-room', room.id);
-      socket.disconnect();
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [room, isAuthenticated, queryClient]);
+  }, [room?.id, isAuthenticated, queryClient]);
 
   return null;
 }
