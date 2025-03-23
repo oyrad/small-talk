@@ -28,7 +28,7 @@ export function useRoomSocket({ roomId, isAuthenticated }: UseRoomSocketParams) 
     socket.on('message', messageHandler);
 
     const handleVisibilityChange = () => {
-      if (document.visibilityState === 'visible' && !socket.connected) {
+      if (document.visibilityState === 'visible') {
         connectSocket();
       }
     };

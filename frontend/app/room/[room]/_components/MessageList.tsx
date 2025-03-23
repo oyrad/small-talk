@@ -60,7 +60,7 @@ export function MessageList({ messages }: MessageListProps) {
             <Card
               key={index}
               className={cn(
-                'px-3 py-1 bg-gray-200 text-black rounded-xl border-none',
+                'px-3 py-1 bg-gray-200 text-black rounded-xl border-none hyphens-auto',
                 msg.user.id === userId && 'bg-gray-700 text-white',
               )}
             >
