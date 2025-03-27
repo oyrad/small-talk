@@ -37,7 +37,7 @@ export function useRoomSocket({ room, isAuthenticated }: UseRoomSocketParams) {
       socket.emit('leave-room', room.id);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [room?.id, isAuthenticated, queryClient]);
+  }, [isAuthenticated, queryClient, room]);
 
   return null;
 }
