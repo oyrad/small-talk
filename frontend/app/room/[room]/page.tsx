@@ -11,9 +11,9 @@ import { PasswordPrompt, PasswordPromptFormValues } from '@/app/room/[room]/_com
 import { useValidatePasswordMutation } from '@/hooks/use-validate-password-mutation';
 import { useRoomSocket } from '@/hooks/use-room-socket';
 import { useSendMessageMutation } from '@/hooks/use-send-message-mutation';
-import { HeaderDropDownMenu } from '@/app/room/[room]/_components/HeaderDropDownMenu';
+import { RoomSettings } from '@/app/room/[room]/_components/RoomSettings';
 import { Button } from '@/components/ui/button';
-import { Send, Settings } from 'lucide-react';
+import { Send } from 'lucide-react';
 import { HashLoader } from 'react-spinners';
 import TextareaAutosize from 'react-textarea-autosize';
 import { cn } from '@/lib/utils';
@@ -104,16 +104,12 @@ export default function Room() {
             </h1>
           )}
 
-          <HeaderDropDownMenu
+          <RoomSettings
             onCopyLink={copyRoomLink}
             userId={userId ?? ''}
             roomCreatorId={room?.creator.id ?? ''}
             roomId={room?.id ?? ''}
-          >
-            <Button asChild variant="outline" className="h-full p-0">
-              <Settings className="size-10 p-2" />
-            </Button>
-          </HeaderDropDownMenu>
+          />
         </Card>
       </header>
 

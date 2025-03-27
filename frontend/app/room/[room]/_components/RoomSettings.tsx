@@ -6,20 +6,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { PropsWithChildren, useState } from 'react';
-import { Copy, SquarePen, UserRoundPen } from 'lucide-react';
+import { useState } from 'react';
+import { Copy, Settings, SquarePen, UserRoundPen } from 'lucide-react';
 import { ChangeUserAlias } from '@/app/room/[room]/_components/ChangeUserAlias';
 import { ChangeRoomName } from '@/app/room/[room]/_components/ChangeRoomName';
-import { socket } from '@/socket/socket';
+import { Button } from '@/components/ui/button';
+import { SocketConnectionIndicator } from '@/app/room/[room]/_components/SocketConnectionIndicator';
 
-interface HeaderDropDownMenuProps extends PropsWithChildren {
+interface HeaderDropDownMenuProps {
   onCopyLink: VoidFunction;
   userId: string;
   roomCreatorId: string;
   roomId: string;
 }
 
-export function HeaderDropDownMenu({ onCopyLink, userId, roomCreatorId, roomId, children }: HeaderDropDownMenuProps) {
+export function RoomSettings({ onCopyLink, userId, roomCreatorId, roomId }: HeaderDropDownMenuProps) {
   const [isAliasDialogOpen, setIsAliasDialogOpen] = useState(false);
   const [isRoomNameDialogOpen, setIsRoomNameDialogOpen] = useState(false);
 
@@ -28,7 +29,11 @@ export function HeaderDropDownMenu({ onCopyLink, userId, roomCreatorId, roomId, 
   return (
     <>
       <DropdownMenu>
-        <DropdownMenuTrigger>{children}</DropdownMenuTrigger>
+        <DropdownMenuTrigger>
+          <Button asChild variant="outline" className="h-full p-0">
+            <Settings className="size-10 p-2" />
+          </Button>
+        </DropdownMenuTrigger>
 
         <DropdownMenuContent className="mr-4">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
@@ -44,28 +49,16 @@ export function HeaderDropDownMenu({ onCopyLink, userId, roomCreatorId, roomId, 
           </DropdownMenuItem>
 
           {isUserRoomCreator && (
-            <>
-              <DropdownMenuItem onClick={() => setIsRoomNameDialogOpen(true)}>
-                <SquarePen />
-                Change room name
-              </DropdownMenuItem>
-            </>
+            <DropdownMenuItem onClick={() => setIsRoomNameDialogOpen(true)}>
+              <SquarePen />
+              Change room name
+            </DropdownMenuItem>
           )}
 
           <DropdownMenuSeparator />
 
           <DropdownMenuItem>
-            {socket.connected ? (
-              <div className="flex gap-2 items-center">
-                <div className="size-3 rounded-full bg-emerald-600" />
-                <p>Connected</p>
-              </div>
-            ) : (
-              <div className="flex gap-2 items-center">
-                <div className="size-3 rounded-full bg-red-600" />
-                <p>Disconnected</p>
-              </div>
-            )}
+            <SocketConnectionIndicator />
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
