@@ -14,11 +14,11 @@ import { useSendMessageMutation } from '@/hooks/use-send-message-mutation';
 import { RoomSettings } from '@/app/room/[room]/_components/RoomSettings';
 import { Button } from '@/components/ui/button';
 import { Send } from 'lucide-react';
-import { HashLoader } from 'react-spinners';
 import TextareaAutosize from 'react-textarea-autosize';
 import { cn } from '@/lib/utils';
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import { useJoinRoomMutation } from '@/hooks/use-join-room-mutation';
+import { Loader } from '@/app/_components/Loader';
 
 export default function Room() {
   const [message, setMessage] = useState('');
@@ -28,7 +28,7 @@ export default function Room() {
   const { push } = useRouter();
   const messageInputRef = useRef<HTMLTextAreaElement | null>(null);
 
-  const { data: room, isPending: isRoomPending, error: roomError } = useGetRoomByIdQuery(roomId);
+  const { data: room, isPending: isRoomLoading, error: roomError } = useGetRoomByIdQuery(roomId);
 
   const { mutateAsync: validatePassword } = useValidatePasswordMutation(roomId);
   const { mutate: joinRoom } = useJoinRoomMutation();
@@ -74,22 +74,17 @@ export default function Room() {
     }
   }
 
-  if (isRoomPending) {
-    return (
-      <div className="grid place-items-center h-full">
-        <HashLoader size={100} />
-      </div>
-    );
+  if (isRoomLoading) {
+    return <Loader />;
   }
 
   if (!room || roomError) {
     return (
-      <div className="grid place-items-center p-8 h-full">
-        <Card className="p-2 gap-0 text-sm w-full">
-          <p>Room not found with id:</p>
-          <p className="font-semibold text-xs mb-2">{roomId}</p>
-          <Button onClick={() => push('/')}>Home</Button>
-        </Card>
+      <div className="flex flex-col items-center justify-center gap-8 p-8 h-full">
+        <h1 className="text-6xl">404 Room not found</h1>
+        <Button onClick={() => push('/')} className="w-full">
+          Home
+        </Button>
       </div>
     );
   }
