@@ -2,8 +2,8 @@ import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 import { Room } from '@/types/room';
 import { fetchWithPrefix } from '@/utils/fetch-with-prefix';
 
-async function getRoomById(id: string): Promise<Room> {
-  const response = await fetchWithPrefix(`room/${id}`);
+async function getRoomById(roomId: string): Promise<Room> {
+  const response = await fetchWithPrefix(`room/${roomId}`);
 
   if (!response.ok) {
     throw new Error(response.statusText);
@@ -12,10 +12,14 @@ async function getRoomById(id: string): Promise<Room> {
   return response.json();
 }
 
-export function useGetRoomByIdQuery(id: string, options?: Omit<UseQueryOptions<Room, Error>, 'queryKey' | 'queryFn'>) {
+export function useGetRoomByIdQuery(
+  roomId: string,
+  options?: Omit<UseQueryOptions<Room, Error>, 'queryKey' | 'queryFn'>,
+) {
   return useQuery({
-    queryKey: ['room', id],
-    queryFn: () => getRoomById(id),
+    queryKey: ['room', roomId],
+    queryFn: () => getRoomById(roomId),
+    enabled: !!roomId,
     ...options,
   });
 }

@@ -46,7 +46,6 @@ export default function Room() {
 
   useEffect(() => {
     if (room && !room.hasPassword && !room.users.find((user) => user.id === userId)) {
-      console.log('joining room');
       joinRoom({ roomId, userId: userId ?? '' });
     }
   }, [joinRoom, room, roomId, userId]);

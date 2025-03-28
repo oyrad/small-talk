@@ -10,7 +10,6 @@ interface RoomMembersProps extends PropsWithChildren {
 }
 
 export function RoomMembers({ isOpen, setIsOpen, members, children }: RoomMembersProps) {
-  console.log({ members });
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       {children && <DialogTrigger asChild>{children}</DialogTrigger>}

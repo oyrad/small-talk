@@ -115,7 +115,6 @@ export class RoomService {
   }
 
   async joinRoom(roomId: string, userId: string) {
-    console.log({ roomId, userId });
     this.logger.log(`Joining room with ID: ${roomId} by user ID: ${userId}`);
     const user = await this.userRepository.findOne({ where: { id: userId } });
 
@@ -129,7 +128,6 @@ export class RoomService {
       throw new Error('Room not found');
     }
 
-    console.log({ room });
     room.users.push(user);
     await this.roomRepository.save(room);
     this.logger.log(`User ${userId} joined room ${roomId}`);
