@@ -113,4 +113,27 @@ export class RoomService {
     await this.roomRepository.save(room);
     return true;
   }
+
+  async joinRoom(roomId: string, userId: string) {
+    console.log({ roomId, userId });
+    this.logger.log(`Joining room with ID: ${roomId} by user ID: ${userId}`);
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    const room = await this.roomRepository.findOne({ where: { id: roomId }, relations: ['users'] });
+
+    if (!room) {
+      throw new Error('Room not found');
+    }
+
+    console.log({ room });
+    room.users.push(user);
+    await this.roomRepository.save(room);
+    this.logger.log(`User ${userId} joined room ${roomId}`);
+
+    return room;
+  }
 }

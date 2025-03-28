@@ -17,7 +17,8 @@ import { Send } from 'lucide-react';
 import { HashLoader } from 'react-spinners';
 import TextareaAutosize from 'react-textarea-autosize';
 import { cn } from '@/lib/utils';
-import { FormEvent, useRef, useState } from 'react';
+import { FormEvent, useEffect, useRef, useState } from 'react';
+import { useJoinRoomMutation } from '@/hooks/use-join-room-mutation';
 
 export default function Room() {
   const [message, setMessage] = useState('');
@@ -28,7 +29,9 @@ export default function Room() {
   const messageInputRef = useRef<HTMLTextAreaElement | null>(null);
 
   const { data: room, isPending: isRoomPending, error: roomError } = useGetRoomByIdQuery(roomId);
+
   const { mutateAsync: validatePassword } = useValidatePasswordMutation(roomId);
+  const { mutate: joinRoom } = useJoinRoomMutation();
 
   const isAuthenticated = !room?.hasPassword || (room && room.users.some((user) => user.id === userId));
 
@@ -40,6 +43,13 @@ export default function Room() {
       setMessage('');
     },
   });
+
+  useEffect(() => {
+    if (room && !room.hasPassword && !room.users.find((user) => user.id === userId)) {
+      console.log('joining room');
+      joinRoom({ roomId, userId: userId ?? '' });
+    }
+  }, [joinRoom, room, roomId, userId]);
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -104,12 +114,7 @@ export default function Room() {
             </h1>
           )}
 
-          <RoomSettings
-            onCopyLink={copyRoomLink}
-            userId={userId ?? ''}
-            roomCreatorId={room?.creator.id ?? ''}
-            roomId={room?.id ?? ''}
-          />
+          <RoomSettings onCopyLink={copyRoomLink} userId={userId ?? ''} room={room} />
         </Card>
       </header>
 

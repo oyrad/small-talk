@@ -34,4 +34,9 @@ export class RoomController {
     const success = await this.roomService.validateRoomPassword(roomId, userId, password);
     return { success };
   }
+
+  @Post(':id/join')
+  async joinRoom(@Param('id') roomId: string, @Body('userId') userId: string) {
+    return this.roomService.joinRoom(roomId, userId);
+  }
 }
