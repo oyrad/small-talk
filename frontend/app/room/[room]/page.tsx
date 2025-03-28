@@ -19,6 +19,7 @@ import { cn } from '@/lib/utils';
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import { useJoinRoomMutation } from '@/hooks/use-join-room-mutation';
 import { Loader } from '@/app/_components/Loader';
+import { SocketConnectionIndicator } from '@/app/room/[room]/_components/SocketConnectionIndicator';
 
 export default function Room() {
   const [message, setMessage] = useState('');
@@ -89,7 +90,7 @@ export default function Room() {
     );
   }
 
-  if (room?.hasPassword && !isAuthenticated) {
+  if (room.hasPassword && !isAuthenticated) {
     return <PasswordPrompt onValidatePassword={onValidatePassword} />;
   }
 
@@ -97,22 +98,28 @@ export default function Room() {
     <div className="flex flex-col h-full p-4 gap-3">
       <header>
         <Card className="flex flex-row justify-between items-center p-2 pl-4">
-          {room && room.name ? (
+          {room.name ? (
             <div onClick={copyRoomLink}>
-              <h1 className="text-lg font-semibold">{room.name}</h1>
+              <div className="flex items-center gap-1.5">
+                <SocketConnectionIndicator />
+                <h1 className="text-lg font-semibold">{room.name}</h1>
+              </div>
               <p className="text-xs text-gray-500">{room.id}</p>
             </div>
           ) : (
-            <h1 className="text-sm font-semibold cursor-pointer justify-self-start w-fit" onClick={copyRoomLink}>
-              {room?.id}
-            </h1>
+            <div className="flex items-center gap-1.5">
+              <SocketConnectionIndicator />
+              <p className="text-xs font-semibold cursor-pointer justify-self-start w-fit" onClick={copyRoomLink}>
+                {room.id}
+              </p>
+            </div>
           )}
 
           <RoomSettings onCopyLink={copyRoomLink} userId={userId ?? ''} room={room} />
         </Card>
       </header>
 
-      <MessageList messages={room?.messages ?? []} />
+      <MessageList messages={room.messages} />
 
       <form onSubmit={handleSubmit} className="flex gap-2 items-center">
         <TextareaAutosize

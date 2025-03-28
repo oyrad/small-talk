@@ -2,8 +2,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useState } from 'react';
@@ -11,7 +9,6 @@ import { Copy, Settings, SquarePen, UserRoundPen, Users } from 'lucide-react';
 import { ChangeUserAlias } from '@/app/room/[room]/_components/ChangeUserAlias';
 import { ChangeRoomName } from '@/app/room/[room]/_components/ChangeRoomName';
 import { Button } from '@/components/ui/button';
-import { SocketConnectionIndicator } from '@/app/room/[room]/_components/SocketConnectionIndicator';
 import { Room } from '@/types/room';
 import { RoomMembers } from '@/app/room/[room]/_components/RoomMembers';
 
@@ -38,11 +35,9 @@ export function RoomSettings({ onCopyLink, userId, room }: HeaderDropDownMenuPro
         </DropdownMenuTrigger>
 
         <DropdownMenuContent className="mr-4">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-
-          <DropdownMenuItem onClick={onCopyLink}>
-            <Copy />
-            Copy room link
+          <DropdownMenuItem onClick={() => setIsRoomMembersDialogOpen(true)}>
+            <Users />
+            Members
           </DropdownMenuItem>
 
           <DropdownMenuItem onClick={() => setIsAliasDialogOpen(true)}>
@@ -57,15 +52,9 @@ export function RoomSettings({ onCopyLink, userId, room }: HeaderDropDownMenuPro
             </DropdownMenuItem>
           )}
 
-          <DropdownMenuSeparator />
-
-          <DropdownMenuItem onClick={() => setIsRoomMembersDialogOpen(true)}>
-            <Users />
-            View members
-          </DropdownMenuItem>
-
-          <DropdownMenuItem>
-            <SocketConnectionIndicator />
+          <DropdownMenuItem onClick={onCopyLink}>
+            <Copy />
+            Copy room link
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

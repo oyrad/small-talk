@@ -18,18 +18,8 @@ export function SocketConnectionIndicator() {
   }, []);
 
   if (isConnected) {
-    return (
-      <div className="flex gap-2 items-center">
-        <div className="size-3 rounded-full bg-emerald-600" />
-        <p>Connected</p>
-      </div>
-    );
+    return <div className="size-3 rounded-full bg-emerald-600" />;
   }
 
-  return (
-    <div className="flex gap-2 items-center">
-      <div className="size-3 rounded-full bg-red-600" />
-      <p>Disconnected</p>
-    </div>
-  );
+  return <div className="size-3 rounded-full bg-red-600" />;
 }
