@@ -7,8 +7,13 @@ export class RoomController {
   constructor(private readonly roomService: RoomService) {}
 
   @Post()
-  createRoom(@Body('userId') userId: string, @Body('name') name?: string, @Body('password') password?: string) {
-    return this.roomService.createRoom(userId, name, password);
+  createRoom(
+    @Body('userId') userId: string,
+    @Body('name') name: string,
+    @Body('password') password: string,
+    @Body('disappearingMessages') disappearingMessages: boolean,
+  ) {
+    return this.roomService.createRoom(userId, name, password, disappearingMessages);
   }
 
   @Get(':id')

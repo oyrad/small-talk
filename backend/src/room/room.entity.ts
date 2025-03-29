@@ -32,6 +32,9 @@ export class Room {
   @OneToMany(() => Message, (message) => message.room)
   messages: Array<Message>;
 
+  @Column({ default: false })
+  disappearingMessages: boolean;
+
   @CreateDateColumn()
   createdAt: Date;
 }

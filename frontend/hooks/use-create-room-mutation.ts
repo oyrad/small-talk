@@ -6,15 +6,16 @@ interface CreateRoomParams {
   name: string;
   password: string;
   userId: string;
+  disappearingMessages: boolean;
 }
 
-async function createRoom({ name, password, userId }: CreateRoomParams): Promise<Room> {
+async function createRoom({ userId, ...values }: CreateRoomParams): Promise<Room> {
   const res = await fetchWithPrefix('room', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ name, password, userId }),
+    body: JSON.stringify({ userId, ...values }),
   });
 
   if (!res.ok) {

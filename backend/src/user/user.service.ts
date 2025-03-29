@@ -12,7 +12,7 @@ export class UserService {
     private userRepository: Repository<User>,
   ) {}
 
-  async getUserById(userId: string) {
+  getUserById(userId: string) {
     this.logger.log(`Fetching user by ID: ${userId}`);
     return this.userRepository.findOne({ where: { id: userId }, relations: ['rooms', 'createdRooms'] });
   }

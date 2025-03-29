@@ -17,18 +17,25 @@ export class RoomService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async createRoom(userId: string, name?: string, password?: string) {
+  async createRoom(userId: string, name: string, password: string, disappearingMessages: boolean) {
     this.logger.log(`Creating a new room: ${name ?? 'Unnamed Room'}`);
 
     const user = await this.userRepository.findOne({ where: { id: userId } });
+
     if (!user) {
-      throw new Error('User not found');
+      throw new BadRequestException('User not found');
     }
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = password ? await bcrypt.hash(password, salt) : null;
 
-    const room = this.roomRepository.create({ name, password: hashedPassword, users: [user], creator: user });
+    const room = this.roomRepository.create({
+      name,
+      password: hashedPassword,
+      users: [user],
+      creator: user,
+      disappearingMessages,
+    });
     const savedRoom = await this.roomRepository.save(room);
 
     this.logger.log(`Room created with ID: ${savedRoom.id}`);
