@@ -55,7 +55,11 @@ export default function Home() {
 
             <div className="flex flex-col gap-4 max-h-96 overflow-y-scroll px-2">
               {user?.rooms.map((room) => (
-                <div key={room.id} className="flex items-center justify-between">
+                <div
+                  key={room.id}
+                  className="flex items-center justify-between"
+                  onClick={() => push(`/room/${room.id}`)}
+                >
                   <div>
                     <p className="font-semibold">{room.name}</p>
                     <p className={cn('text-xs text-gray-500', !room.name && 'font-semibold text-slate-900')}>
@@ -63,7 +67,7 @@ export default function Home() {
                     </p>
                   </div>
 
-                  <Button size="icon" variant="outline" onClick={() => push(`/room/${room.id}`)}>
+                  <Button size="icon" variant="outline">
                     <ArrowRight />
                   </Button>
                 </div>

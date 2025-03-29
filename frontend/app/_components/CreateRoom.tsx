@@ -56,7 +56,7 @@ export function CreateRoom({ isOpen, setIsOpen, children }: CreateRoomProps) {
                   name="disappearingMessages"
                   control={control}
                   render={({ field }) => (
-                    <div className="flex items-center gap-1 text-sm">
+                    <div className="flex items-center gap-2 text-sm">
                       <Checkbox
                         id="disappearing-messages"
                         checked={field.value}

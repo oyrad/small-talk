@@ -1,5 +1,6 @@
 import { socket } from '@/socket/socket';
 import { useEffect, useState } from 'react';
+import { cn } from '@/lib/utils';
 
 export function SocketConnectionIndicator() {
   const [isConnected, setIsConnected] = useState(socket.connected);
@@ -17,9 +18,5 @@ export function SocketConnectionIndicator() {
     };
   }, []);
 
-  if (isConnected) {
-    return <div className="size-3 rounded-full bg-emerald-600" />;
-  }
-
-  return <div className="size-3 rounded-full bg-red-600" />;
+  return <div className={cn('size-3 min-w-3 rounded-full bg-red-600', isConnected && 'bg-emerald-600')} />;
 }
