@@ -38,36 +38,39 @@ export default function Home() {
         </ChangeUserAlias>
       </Card>
 
-      {user?.rooms.length && (
-        <Card className="flex flex-col gap-3 w-full px-2 py-3 h-fit">
-          <div className="flex items-center justify-between px-2">
-            <p className="font-semibold">Rooms</p>
+      <Card className="flex flex-col gap-3 w-full px-2 py-3 h-fit">
+        <div className="flex items-center justify-between px-2">
+          <p className="font-semibold">Rooms</p>
 
-            <CreateRoom isOpen={isCreateRoomModalOpen} setIsOpen={setIsCreateRoomModalOpen}>
-              <Button size="icon">
-                <Plus className="size-5" />
-              </Button>
-            </CreateRoom>
-          </div>
+          <CreateRoom isOpen={isCreateRoomModalOpen} setIsOpen={setIsCreateRoomModalOpen}>
+            <Button size="icon">
+              <Plus className="size-5" />
+            </Button>
+          </CreateRoom>
+        </div>
+        {user?.rooms.length !== 0 && (
+          <>
+            <hr className="mx-2" />
 
-          <hr className="mx-2" />
+            <div className="flex flex-col gap-4 max-h-96 overflow-y-scroll px-2">
+              {user?.rooms.map((room) => (
+                <div key={room.id} className="flex items-center justify-between">
+                  <div>
+                    <p className="font-semibold">{room.name}</p>
+                    <p className={cn('text-xs text-gray-500', !room.name && 'font-semibold text-slate-900')}>
+                      {room.id}
+                    </p>
+                  </div>
 
-          <div className="flex flex-col gap-4 max-h-96 overflow-y-scroll px-2">
-            {user?.rooms.map((room) => (
-              <div key={room.id} className="flex items-center justify-between">
-                <div>
-                  <p className="font-semibold">{room.name}</p>
-                  <p className={cn('text-xs text-gray-500', !room.name && 'font-semibold text-slate-900')}>{room.id}</p>
+                  <Button size="icon" variant="outline" onClick={() => push(`/room/${room.id}`)}>
+                    <ArrowRight />
+                  </Button>
                 </div>
-
-                <Button size="icon" variant="outline" onClick={() => push(`/room/${room.id}`)}>
-                  <ArrowRight />
-                </Button>
-              </div>
-            ))}
-          </div>
-        </Card>
-      )}
+              ))}
+            </div>
+          </>
+        )}
+      </Card>
     </div>
   );
 }
