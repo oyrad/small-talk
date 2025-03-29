@@ -39,4 +39,9 @@ export class RoomController {
   async joinRoom(@Param('id') roomId: string, @Body('userId') userId: string) {
     return this.roomService.joinRoom(roomId, userId);
   }
+
+  @Post(':id/leave')
+  async leaveRoom(@Param('id') roomId: string, @Body('userId') userId: string) {
+    return this.roomService.leaveRoom(roomId, userId);
+  }
 }

@@ -2,15 +2,18 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useState } from 'react';
-import { Copy, Settings, SquarePen, UserRoundPen, Users } from 'lucide-react';
+import { Copy, DoorOpen, Settings, SquarePen, UserRoundPen, Users } from 'lucide-react';
 import { ChangeUserAlias } from '@/app/room/[room]/_components/ChangeUserAlias';
 import { ChangeRoomName } from '@/app/room/[room]/_components/ChangeRoomName';
 import { Button } from '@/components/ui/button';
 import { Room } from '@/types/room';
 import { RoomMembers } from '@/app/room/[room]/_components/RoomMembers';
+import { useLeaveRoomMutation } from '@/hooks/use-leave-room-mutation';
+import { useRouter } from 'next/navigation';
 
 interface HeaderDropDownMenuProps {
   onCopyLink: VoidFunction;
@@ -24,6 +27,14 @@ export function RoomSettings({ onCopyLink, userId, room }: HeaderDropDownMenuPro
   const [isRoomMembersDialogOpen, setIsRoomMembersDialogOpen] = useState(false);
 
   const isUserRoomCreator = userId === room.creator.id;
+
+  const { push } = useRouter();
+
+  const { mutate: leaveRoom } = useLeaveRoomMutation({
+    onSuccess: () => {
+      push('/');
+    },
+  });
 
   return (
     <>
@@ -55,6 +66,13 @@ export function RoomSettings({ onCopyLink, userId, room }: HeaderDropDownMenuPro
           <DropdownMenuItem onClick={onCopyLink}>
             <Copy />
             Copy room link
+          </DropdownMenuItem>
+
+          <DropdownMenuSeparator />
+
+          <DropdownMenuItem className="text-red-600" onClick={() => leaveRoom({ roomId: room.id, userId })}>
+            <DoorOpen className="text-red-600" />
+            Leave room
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

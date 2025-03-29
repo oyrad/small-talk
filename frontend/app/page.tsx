@@ -57,7 +57,7 @@ export default function Home() {
               <div key={room.id} className="flex items-center justify-between">
                 <div>
                   <p className="font-semibold">{room.name}</p>
-                  <p className={cn('text-xs', !room.name && 'font-semibold')}>{room.id}</p>
+                  <p className={cn('text-xs text-gray-500', !room.name && 'font-semibold text-slate-900')}>{room.id}</p>
                 </div>
 
                 <Button size="icon" variant="outline" onClick={() => push(`/room/${room.id}`)}>

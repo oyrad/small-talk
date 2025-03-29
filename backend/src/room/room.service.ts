@@ -119,18 +119,39 @@ export class RoomService {
     const user = await this.userRepository.findOne({ where: { id: userId } });
 
     if (!user) {
-      throw new Error('User not found');
+      throw new BadRequestException('User not found');
     }
 
     const room = await this.roomRepository.findOne({ where: { id: roomId }, relations: ['users'] });
 
     if (!room) {
-      throw new Error('Room not found');
+      throw new BadRequestException('Room not found');
     }
 
     room.users.push(user);
     await this.roomRepository.save(room);
     this.logger.log(`User ${userId} joined room ${roomId}`);
+
+    return room;
+  }
+
+  async leaveRoom(roomId: string, userId: string) {
+    this.logger.log(`Leaving room with ID: ${roomId} by user ID: ${userId}`);
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+
+    const room = await this.roomRepository.findOne({ where: { id: roomId }, relations: ['users'] });
+
+    if (!room) {
+      throw new BadRequestException('Room not found');
+    }
+
+    room.users = room.users.filter((u) => u.id !== user.id);
+    await this.roomRepository.save(room);
+    this.logger.log(`User ${userId} left room ${roomId}`);
 
     return room;
   }
