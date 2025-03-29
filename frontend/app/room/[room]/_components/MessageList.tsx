@@ -45,7 +45,7 @@ export function MessageList({ messages }: MessageListProps) {
     >
       {messages.map((msg, index) => (
         <div key={index}>
-          {index === 0 && <DateMarker date={new Date(msg.createdAt).toLocaleDateString()} className="mb-2 " />}
+          {index === 0 && <DateMarker date={new Date(msg.createdAt).toLocaleDateString()} className="mb-2" />}
 
           {index !== 0 && !isSameDay(new Date(msg?.createdAt), new Date(messages[index - 1].createdAt)) && (
             <DateMarker date={new Date(msg.createdAt).toLocaleDateString()} className="my-3" />

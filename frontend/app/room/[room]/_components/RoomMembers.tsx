@@ -29,7 +29,7 @@ export function RoomMembers({ isOpen, setIsOpen, members, children }: RoomMember
                 return (
                   <div key={member.id} className="flex flex-col items-start">
                     <p className="font-semibold text-sm">{member.alias}</p>
-                    <p className="text-xs">{member.id}</p>
+                    <p className="text-xs text-gray-500">{member.id}</p>
                   </div>
                 );
               }
