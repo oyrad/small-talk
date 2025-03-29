@@ -46,12 +46,16 @@ export function MessageList({ room }: MessageListProps) {
       }}
     >
       {room.disappearingMessages && (
-        <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl p-3 text-xs mb-2">
-          <Info className="size-5 min-w-5 text-gray-600" />
-          <p className="text-gray-800">
-            Disappearing messages are enabled. Messages will be deleted{' '}
-            <span className="font-semibold">30 minutes</span> after sending.
-          </p>
+        <div className="z-10 pb-2 text-xs sticky top-0">
+          <div className="absolute inset-0 bg-white ring-2 ring-white z-[-1]" />
+
+          <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl p-3">
+            <Info className="size-5 min-w-5 text-gray-600" />
+            <p className="text-gray-800">
+              Disappearing messages are enabled. Messages will be deleted{' '}
+              <span className="font-semibold">30 minutes</span> after sending.
+            </p>
+          </div>
         </div>
       )}
 
