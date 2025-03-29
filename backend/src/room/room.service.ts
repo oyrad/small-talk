@@ -82,39 +82,7 @@ export class RoomService {
     return updatedRoom;
   }
 
-  async validateRoomPassword(roomId: string, userId: string, password: string) {
-    this.logger.log(`Validating password for room ID: ${roomId}`);
-    const room = await this.getRoomByIdWithPassword(roomId);
-    if (!room) {
-      throw new Error('Room not found');
-    }
-
-    const user = await this.userRepository.findOne({ where: { id: userId } });
-    if (!user) {
-      throw new Error('User not found');
-    }
-
-    if (!room.password) {
-      this.logger.log(`Room ${roomId} has no password, allowing access, adding user ${userId} to room.`);
-      room.users.push(user);
-      await this.roomRepository.save(room);
-      return true;
-    }
-
-    const isMatch = await bcrypt.compare(password, room.password);
-
-    if (!isMatch) {
-      this.logger.log(`Incorrect password attempt for room ${roomId}`);
-      return false;
-    }
-
-    this.logger.log(`Password validated successfully for room ${roomId}, adding user ${userId} to room.`);
-    room.users.push(user);
-    await this.roomRepository.save(room);
-    return true;
-  }
-
-  async joinRoom(roomId: string, userId: string) {
+  async joinRoom(roomId: string, userId: string, password?: string) {
     this.logger.log(`Joining room with ID: ${roomId} by user ID: ${userId}`);
     const user = await this.userRepository.findOne({ where: { id: userId } });
 
@@ -128,11 +96,25 @@ export class RoomService {
       throw new BadRequestException('Room not found');
     }
 
+    if (!room.password) {
+      this.logger.log(`Room ${roomId} has no password, allowing access, adding user ${userId} to room.`);
+      room.users.push(user);
+      await this.roomRepository.save(room);
+      return { success: true };
+    }
+
+    const isMatch = await bcrypt.compare(password, room.password);
+
+    if (!isMatch) {
+      this.logger.log(`Incorrect password attempt for room ${roomId}`);
+      return { success: false };
+    }
+
+    this.logger.log(`Password validated successfully for room ${roomId}, adding user ${userId} to room.`);
     room.users.push(user);
     await this.roomRepository.save(room);
-    this.logger.log(`User ${userId} joined room ${roomId}`);
 
-    return room;
+    return { success: true };
   }
 
   async leaveRoom(roomId: string, userId: string) {

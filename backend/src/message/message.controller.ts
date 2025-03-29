@@ -6,7 +6,7 @@ export class MessageController {
   constructor(private readonly messageService: MessageService) {}
 
   @Post(':id')
-  async createMessage(@Param('id') roomId: string, @Body('userId') userId: string, @Body('content') content: string) {
+  createMessage(@Param('id') roomId: string, @Body('userId') userId: string, @Body('content') content: string) {
     return this.messageService.createMessage(userId, roomId, content);
   }
 }

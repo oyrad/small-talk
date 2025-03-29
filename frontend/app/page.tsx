@@ -48,6 +48,7 @@ export default function Home() {
             </Button>
           </CreateRoom>
         </div>
+
         {user?.rooms.length !== 0 && (
           <>
             <hr className="mx-2" />

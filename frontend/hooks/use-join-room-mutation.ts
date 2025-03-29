@@ -1,18 +1,23 @@
 import { fetchWithPrefix } from '@/utils/fetch-with-prefix';
-import { useMutation, UseMutationOptions } from '@tanstack/react-query';
+import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
+
+interface JoinRoomResponse {
+  success: boolean;
+}
 
 interface JoinRoomParams {
   roomId: string;
   userId: string;
+  password?: string;
 }
 
-async function joinRoom({ roomId, userId }: JoinRoomParams) {
+async function joinRoom({ roomId, userId, password }: JoinRoomParams): Promise<JoinRoomResponse> {
   const res = await fetchWithPrefix(`room/${roomId}/join`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ userId }),
+    body: JSON.stringify({ userId, password }),
   });
 
   if (!res.ok) {
@@ -23,10 +28,19 @@ async function joinRoom({ roomId, userId }: JoinRoomParams) {
 }
 
 export function useJoinRoomMutation(
-  options?: Omit<UseMutationOptions<ReturnType<typeof joinRoom>, unknown, JoinRoomParams>, 'mutationFn'>,
+  options?: Omit<UseMutationOptions<JoinRoomResponse, unknown, JoinRoomParams>, 'mutationFn'>,
 ) {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: joinRoom,
+    onSuccess: (...args) => {
+      options?.onSuccess?.(...args);
+
+      if (args[0].success) {
+        return queryClient.invalidateQueries({ queryKey: ['room', args[1].roomId] });
+      }
+    },
     ...options,
   });
 }
