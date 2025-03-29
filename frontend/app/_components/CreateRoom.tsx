@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { useUserStore } from '@/stores/use-user-store';
 import { Checkbox } from '@/components/ui/checkbox';
 import { DialogBody } from 'next/dist/client/components/react-dev-overlay/ui/components/dialog';
+import { ClipLoader } from 'react-spinners';
 
 interface CreateRoomFormValues {
   name: string;
@@ -34,7 +35,7 @@ export function CreateRoom({ isOpen, setIsOpen, children }: CreateRoomProps) {
 
   const disappearingMessages = watch('disappearingMessages');
 
-  const { mutate: createRoom } = useCreateRoomMutation({
+  const { mutate: createRoom, isPending } = useCreateRoomMutation({
     onSuccess: (data) => {
       push(`/room/${data.id}`);
     },
@@ -68,13 +69,11 @@ export function CreateRoom({ isOpen, setIsOpen, children }: CreateRoomProps) {
                 />
 
                 {disappearingMessages && (
-                  <p className="text-xs text-gray-500 text-left">
-                    Messages will be deleted approximately 30 minutes after sending.
-                  </p>
+                  <p className="text-xs text-gray-500 text-left">Messages will be deleted 30 minutes after sending.</p>
                 )}
               </div>
 
-              <Button className="w-full">Create</Button>
+              <Button className="w-full">{isPending ? <ClipLoader color="white" size={20} /> : 'Create'}</Button>
             </DialogBody>
           </DialogHeader>
         </form>

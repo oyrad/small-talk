@@ -8,5 +8,6 @@ export interface Room {
   users: Array<User>;
   messages: Array<Message>;
   creator: User;
+  disappearingMessages: boolean;
   createdAt: string;
 }

@@ -75,7 +75,7 @@ export default function Room() {
     <div className="flex flex-col h-full p-4 gap-3">
       <RoomHeader room={room} />
 
-      <MessageList messages={room.messages} />
+      <MessageList room={room} />
 
       <form onSubmit={handleSubmit} className="flex gap-2 items-center">
         <TextareaAutosize

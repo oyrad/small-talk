@@ -3,9 +3,10 @@ import { cn } from '@/lib/utils';
 import { useUserStore } from '@/stores/use-user-store';
 import { useEffect, useRef } from 'react';
 import { getMessageTime } from '@/utils/get-message-time';
-import { Message } from '@/types/message';
 import { isSameDay } from 'date-fns';
 import Linkify from 'linkify-react';
+import { Room } from '@/types/room';
+import { Info } from 'lucide-react';
 
 function MessageTimestamp({ timestamp }: { timestamp: string }) {
   return <p className="text-gray-400 text-[0.70rem] whitespace-nowrap">{getMessageTime(timestamp)}</p>;
@@ -22,11 +23,12 @@ function DateMarker({ date, className = '' }: { date: string; className?: string
 }
 
 interface MessageListProps {
-  messages: Array<Message>;
+  room: Room;
 }
 
-export function MessageList({ messages }: MessageListProps) {
+export function MessageList({ room }: MessageListProps) {
   const { userId } = useUserStore();
+  const { messages } = room;
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -43,6 +45,16 @@ export function MessageList({ messages }: MessageListProps) {
         overflowWrap: 'anywhere',
       }}
     >
+      {room.disappearingMessages && (
+        <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl p-3 text-xs mb-2">
+          <Info className="size-5 min-w-5 text-gray-600" />
+          <p className="text-gray-800">
+            Disappearing messages are enabled. Messages will be deleted{' '}
+            <span className="font-semibold">30 minutes</span> after sending.
+          </p>
+        </div>
+      )}
+
       {messages.map((msg, index) => (
         <div key={index}>
           {index === 0 && <DateMarker date={new Date(msg.createdAt).toLocaleDateString()} className="mb-2" />}

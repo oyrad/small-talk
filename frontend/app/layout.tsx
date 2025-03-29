@@ -5,6 +5,7 @@ import { PropsWithChildren } from 'react';
 import { Toaster } from '@/components/ui/sonner';
 import { InitializeUser } from '@/app/_components/InitializeUser';
 import { Providers } from '@/app/_components/Providers';
+import NextTopLoader from 'nextjs-toploader';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -25,6 +26,8 @@ export default function RootLayout({ children }: PropsWithChildren) {
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <NextTopLoader color="#334155" showSpinner={false} />
+
         <Providers>
           <main className="h-svh md:h-screen lg:px-40 xl:px-96">{children}</main>
           <Toaster duration={2000} />

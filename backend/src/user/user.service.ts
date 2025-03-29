@@ -14,7 +14,15 @@ export class UserService {
 
   getUserById(userId: string) {
     this.logger.log(`Fetching user by ID: ${userId}`);
-    return this.userRepository.findOne({ where: { id: userId }, relations: ['rooms', 'createdRooms'] });
+    return this.userRepository.findOne({
+      where: { id: userId },
+      relations: ['rooms', 'createdRooms'],
+      order: {
+        rooms: {
+          createdAt: 'ASC',
+        },
+      },
+    });
   }
 
   async createUser() {
