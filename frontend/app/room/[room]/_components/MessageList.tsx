@@ -39,65 +39,63 @@ export function MessageList({ room }: MessageListProps) {
   }, [messages, userId]);
 
   return (
-    <div
-      className="flex flex-col flex-grow min-h-0 overflow-y-auto gap-1 relative px-2 whitespace-pre-wrap"
-      style={{
-        overflowWrap: 'anywhere',
-      }}
-    >
+    <>
       {room.disappearingMessages && (
-        <div className="z-10 pb-2 text-xs sticky top-0">
-          <div className="absolute inset-0 bg-white ring-2 ring-white z-[-1]" />
-
-          <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl p-3">
-            <Info className="size-5 min-w-5 text-gray-600" />
-            <p className="text-gray-800">
-              Disappearing messages are enabled. Messages will be deleted{' '}
-              <span className="font-semibold">30 minutes</span> after sending.
-            </p>
-          </div>
+        <div className="z-10 text-xs sticky top-0 flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl p-3 mx-4">
+          <Info className="size-5 min-w-5 text-gray-600" />
+          <p className="text-gray-800">
+            Disappearing messages are enabled. Messages will be deleted{' '}
+            <span className="font-semibold">30 minutes</span> after sending.
+          </p>
         </div>
       )}
 
-      {messages.map((msg, index) => (
-        <div key={index}>
-          {index === 0 && <DateMarker date={new Date(msg.createdAt).toLocaleDateString()} className="mb-2" />}
+      <div
+        className="flex flex-col flex-grow min-h-0 overflow-y-auto gap-1 relative px-2 whitespace-pre-wrap"
+        style={{
+          overflowWrap: 'anywhere',
+        }}
+      >
+        {messages.map((msg, index) => (
+          <div key={index}>
+            {index === 0 && <DateMarker date={new Date(msg.createdAt).toLocaleDateString()} className="mb-2" />}
 
-          {index !== 0 && !isSameDay(new Date(msg?.createdAt), new Date(messages[index - 1].createdAt)) && (
-            <DateMarker date={new Date(msg.createdAt).toLocaleDateString()} className="my-3" />
-          )}
+            {index !== 0 && !isSameDay(new Date(msg?.createdAt), new Date(messages[index - 1].createdAt)) && (
+              <DateMarker date={new Date(msg.createdAt).toLocaleDateString()} className="my-3" />
+            )}
 
-          {msg.user.id !== messages[index - 1]?.user.id && (
-            <p className={cn('text-gray-700 text-xs mb-1', msg.user.id === userId && 'text-right')}>
-              {msg.user.alias ?? msg.user.id}
-            </p>
-          )}
+            {msg.user.id !== messages[index - 1]?.user.id && (
+              <p className={cn('text-gray-700 text-xs mb-1', msg.user.id === userId && 'text-right')}>
+                {msg.user.alias ?? msg.user.id}
+              </p>
+            )}
 
-          <div className={cn('flex gap-1 text-sm items-end', msg.user.id === userId && 'ml-auto flex-row-reverse')}>
-            <Card
-              key={index}
-              className={cn(
-                'px-3 py-1 bg-gray-200 text-black rounded-xl border-none hyphens-auto',
-                msg.user.id === userId && 'bg-gray-700 text-white',
-              )}
-            >
-              <Linkify
-                options={{
-                  className: msg.user.id === userId ? 'text-blue-300 underline' : 'text-blue-700 underline',
-                  target: '_blank',
-                  rel: 'noopener noreferrer',
-                }}
+            <div className={cn('flex gap-1 text-sm items-end', msg.user.id === userId && 'ml-auto flex-row-reverse')}>
+              <Card
+                key={index}
+                className={cn(
+                  'px-3 py-1 bg-gray-200 text-black rounded-xl border-none hyphens-auto',
+                  msg.user.id === userId && 'bg-gray-700 text-white',
+                )}
               >
-                {msg.content}
-              </Linkify>
-            </Card>
+                <Linkify
+                  options={{
+                    className: msg.user.id === userId ? 'text-blue-300 underline' : 'text-blue-700 underline',
+                    target: '_blank',
+                    rel: 'noopener noreferrer',
+                  }}
+                >
+                  {msg.content}
+                </Linkify>
+              </Card>
 
-            <MessageTimestamp timestamp={msg.createdAt} />
+              <MessageTimestamp timestamp={msg.createdAt} />
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
 
-      <div ref={messagesEndRef} />
-    </div>
+        <div ref={messagesEndRef} />
+      </div>
+    </>
   );
 }
