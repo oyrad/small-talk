@@ -4,12 +4,12 @@ import { Room } from '@/types/room';
 import { DialogBody } from 'next/dist/client/components/react-dev-overlay/ui/components/dialog';
 
 interface RoomMembersProps extends PropsWithChildren {
+  members: Room['users'];
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  members: Room['users'];
 }
 
-export function RoomMembers({ isOpen, setIsOpen, members, children }: RoomMembersProps) {
+export function RoomMembers({ members, isOpen, setIsOpen, children }: RoomMembersProps) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       {children && <DialogTrigger asChild>{children}</DialogTrigger>}

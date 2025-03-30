@@ -41,7 +41,7 @@ export function RoomSettings({ onCopyLink, userId, room }: HeaderDropDownMenuPro
       <DropdownMenu>
         <DropdownMenuTrigger>
           <Button asChild variant="outline" className="h-full p-0">
-            <Settings className="size-10 p-2" />
+            <Settings className="size-10 p-2 text-slate-700" />
           </Button>
         </DropdownMenuTrigger>
 
@@ -79,7 +79,7 @@ export function RoomSettings({ onCopyLink, userId, room }: HeaderDropDownMenuPro
 
       <ChangeUserAlias userId={userId} roomId={room.id} isOpen={isAliasDialogOpen} setIsOpen={setIsAliasDialogOpen} />
       <ChangeRoomName roomId={room.id} isOpen={isRoomNameDialogOpen} setIsOpen={setIsRoomNameDialogOpen} />
-      <RoomMembers isOpen={isRoomMembersDialogOpen} setIsOpen={setIsRoomMembersDialogOpen} members={room.users} />
+      <RoomMembers members={room.users} isOpen={isRoomMembersDialogOpen} setIsOpen={setIsRoomMembersDialogOpen} />
     </>
   );
 }
