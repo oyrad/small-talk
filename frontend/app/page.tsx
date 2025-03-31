@@ -28,8 +28,14 @@ export default function Home() {
     <div className="flex flex-col h-fit p-6 gap-3">
       <Card className="flex flex-row justify-between items-center w-full py-2 px-4 text-xs">
         <div className="flex flex-col gap-0.5">
-          <p className="text-lg font-semibold">{userAlias}</p>
-          <p className="mb-2">{userId}</p>
+          {userAlias ? (
+            <div>
+              <p className="text-lg font-semibold">{userAlias}</p>
+              <p className="mb-2 text-gray-600">{userId}</p>
+            </div>
+          ) : (
+            <p className="font-semibold">{userId}</p>
+          )}
         </div>
 
         <ChangeUserAlias userId={userId ?? ''} isOpen={isAliasModalOpen} setIsOpen={setIsAliasModalOpen}>
