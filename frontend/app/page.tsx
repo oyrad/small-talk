@@ -6,7 +6,7 @@ import { useUserStore } from '@/stores/use-user-store';
 import { ChangeUserAlias } from '@/app/room/[room]/_components/ChangeUserAlias';
 import { useState } from 'react';
 import { useGetUserByIdQuery } from '@/hooks/use-get-user-by-id-query';
-import { ArrowRight, Plus } from 'lucide-react';
+import { ArrowRight, Edit, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CreateRoom } from '@/app/_components/CreateRoom';
 import { Loader } from '@/app/_components/Loader';
@@ -26,13 +26,15 @@ export default function Home() {
 
   return (
     <div className="flex flex-col h-fit p-6 gap-3">
-      <Card className="w-full py-2.5 px-4 gap-0.5 text-xs">
-        <p className="text-lg font-semibold">{userAlias}</p>
-        <p className="mb-2">User id: {userId}</p>
+      <Card className="flex flex-row justify-between items-center w-full py-2 px-4 text-xs">
+        <div className="flex flex-col gap-0.5">
+          <p className="text-lg font-semibold">{userAlias}</p>
+          <p className="mb-2">{userId}</p>
+        </div>
 
         <ChangeUserAlias userId={userId ?? ''} isOpen={isAliasModalOpen} setIsOpen={setIsAliasModalOpen}>
-          <Button className="w-full" variant="outline">
-            Change alias
+          <Button variant="outline" size="icon">
+            <Edit className="size-5" />
           </Button>
         </ChangeUserAlias>
       </Card>
