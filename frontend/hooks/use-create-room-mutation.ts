@@ -1,12 +1,13 @@
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 import { Room } from '@/types/room';
 import { fetchWithPrefix } from '@/utils/fetch-with-prefix';
+import { DisappearingMessages } from '@/types/disappearing-messages';
 
 interface CreateRoomParams {
   name: string;
   password: string;
   userId: string;
-  disappearingMessages: boolean;
+  disappearingMessages: DisappearingMessages | null;
 }
 
 async function createRoom({ userId, ...values }: CreateRoomParams): Promise<Room> {

@@ -44,7 +44,7 @@ export function ChangeRoomName({ roomId, isOpen, setIsOpen, children }: ChangeRo
           <DialogHeader>
             <DialogTitle className="text-left mb-2">Change room name</DialogTitle>
             <DialogDescription className="flex gap-2">
-              <Input {...register('name')} placeholder="New room name" />
+              <Input {...register('name')} placeholder="Name" />
               <Button>Save</Button>
             </DialogDescription>
           </DialogHeader>

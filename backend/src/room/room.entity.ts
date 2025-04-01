@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { User } from '../user/user.entity';
 import { Message } from '../message/message.entity';
+import { DisappearingMessages } from '../../types/disappearing-messages';
 
 @Entity()
 export class Room {
@@ -32,8 +33,8 @@ export class Room {
   @OneToMany(() => Message, (message) => message.room)
   messages: Array<Message>;
 
-  @Column({ default: false })
-  disappearingMessages: boolean;
+  @Column({ nullable: true })
+  disappearingMessages: DisappearingMessages;
 
   @CreateDateColumn()
   createdAt: Date;

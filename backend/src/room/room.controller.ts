@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import { RoomService } from './room.service';
 import { Room } from './room.entity';
+import { DisappearingMessages } from '../../types/disappearing-messages';
 
 @Controller('api/room')
 export class RoomController {
@@ -11,7 +12,7 @@ export class RoomController {
     @Body('userId') userId: string,
     @Body('name') name: string,
     @Body('password') password: string,
-    @Body('disappearingMessages') disappearingMessages: boolean,
+    @Body('disappearingMessages') disappearingMessages: DisappearingMessages | null,
   ) {
     return this.roomService.createRoom(userId, name, password, disappearingMessages);
   }

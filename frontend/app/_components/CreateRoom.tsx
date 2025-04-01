@@ -6,14 +6,15 @@ import { Controller, useForm } from 'react-hook-form';
 import { useCreateRoomMutation } from '@/hooks/use-create-room-mutation';
 import { useRouter } from 'next/navigation';
 import { useUserStore } from '@/stores/use-user-store';
-import { Checkbox } from '@/components/ui/checkbox';
 import { DialogBody } from 'next/dist/client/components/react-dev-overlay/ui/components/dialog';
 import { ClipLoader } from 'react-spinners';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DISAPPEARING_MESSAGES, DisappearingMessages } from '@/types/disappearing-messages';
 
 interface CreateRoomFormValues {
   name: string;
   password: string;
-  disappearingMessages: boolean;
+  disappearingMessages: DisappearingMessages;
 }
 
 interface CreateRoomProps extends PropsWithChildren {
@@ -25,15 +26,13 @@ export function CreateRoom({ isOpen, setIsOpen, children }: CreateRoomProps) {
   const { userId } = useUserStore();
   const { push } = useRouter();
 
-  const { register, control, handleSubmit, watch } = useForm<CreateRoomFormValues>({
+  const { register, control, handleSubmit } = useForm<CreateRoomFormValues>({
     defaultValues: {
       name: '',
       password: '',
-      disappearingMessages: false,
+      disappearingMessages: DISAPPEARING_MESSAGES.DISABLED,
     },
   });
-
-  const disappearingMessages = watch('disappearingMessages');
 
   const { mutate: createRoom, isPending } = useCreateRoomMutation({
     onSuccess: (data) => {
@@ -46,31 +45,45 @@ export function CreateRoom({ isOpen, setIsOpen, children }: CreateRoomProps) {
       {children && <DialogTrigger asChild>{children}</DialogTrigger>}
 
       <DialogContent>
-        <form onSubmit={handleSubmit((values) => createRoom({ ...values, userId: userId ?? '' }))}>
+        <form
+          onSubmit={handleSubmit((values) =>
+            createRoom({
+              ...values,
+              disappearingMessages:
+                values.disappearingMessages === DISAPPEARING_MESSAGES.DISABLED ? null : values.disappearingMessages,
+              userId: userId ?? '',
+            }),
+          )}
+        >
           <DialogHeader>
             <DialogTitle className="text-left mb-2">New room</DialogTitle>
-            <DialogBody className="flex flex-col gap-1.5 w-full">
+            <DialogBody className="flex flex-col gap-2 w-full">
               <Input {...register('name')} placeholder="Name" />
-              <Input {...register('password')} type="password" placeholder="Password" className="mb-2" />
-              <div className="flex flex-col gap-1 mb-2">
+              <Input {...register('password')} type="password" placeholder="Password" />
+
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-slate-500 text-sm gap-2">Disappearing messages</p>
+
                 <Controller
                   name="disappearingMessages"
                   control={control}
                   render={({ field }) => (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Checkbox
-                        id="disappearing-messages"
-                        checked={field.value}
-                        onCheckedChange={(checked) => field.onChange(checked === true)}
-                      />
-                      <label htmlFor="disappearing-messages">Disappearing messages</label>
-                    </div>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Timeframe" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectGroup>
+                          <SelectItem value={DISAPPEARING_MESSAGES.DISABLED}>Disabled</SelectItem>
+                          <SelectItem value={DISAPPEARING_MESSAGES.TEN_MINUTES}>10 minutes</SelectItem>
+                          <SelectItem value={DISAPPEARING_MESSAGES.THIRTY_MINUTES}>30 minutes</SelectItem>
+                          <SelectItem value={DISAPPEARING_MESSAGES.ONE_HOUR}>1 hour</SelectItem>
+                          <SelectItem value={DISAPPEARING_MESSAGES.ONE_DAY}>1 day</SelectItem>
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
                   )}
                 />
-
-                {disappearingMessages && (
-                  <p className="text-xs text-gray-500 text-left">Messages will be deleted 30 minutes after sending.</p>
-                )}
               </div>
 
               <Button className="w-full">{isPending ? <ClipLoader color="white" size={20} /> : 'Create'}</Button>

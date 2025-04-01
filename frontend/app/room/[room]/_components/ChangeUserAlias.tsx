@@ -55,7 +55,7 @@ export function ChangeUserAlias({ userId, isOpen, setIsOpen, children, roomId }:
           <DialogHeader>
             <DialogTitle className="text-left mb-2">Change user alias</DialogTitle>
             <DialogDescription className="flex gap-2">
-              <Input {...register('alias')} placeholder="New user alias" />
+              <Input {...register('alias')} placeholder="Alias" />
               <Button>Save</Button>
             </DialogDescription>
           </DialogHeader>

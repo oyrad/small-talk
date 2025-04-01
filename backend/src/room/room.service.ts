@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from '../user/user.entity';
 import { isUUID } from 'class-validator';
+import { DisappearingMessages } from '../../types/disappearing-messages';
 
 @Injectable()
 export class RoomService {
@@ -17,7 +18,7 @@ export class RoomService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async createRoom(userId: string, name: string, password: string, disappearingMessages: boolean) {
+  async createRoom(userId: string, name: string, password: string, disappearingMessages: DisappearingMessages | null) {
     this.logger.log(`Creating a new room: ${name ?? 'Unnamed Room'}`);
 
     const user = await this.userRepository.findOne({ where: { id: userId } });
