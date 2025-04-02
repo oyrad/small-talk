@@ -14,19 +14,21 @@ import { Room } from '@/types/room';
 import { RoomMembers } from '@/app/room/[room]/_components/RoomMembers';
 import { useLeaveRoomMutation } from '@/hooks/use-leave-room-mutation';
 import { useRouter } from 'next/navigation';
+import { useUserStore } from '@/stores/use-user-store';
 
 interface HeaderDropDownMenuProps {
   onCopyLink: VoidFunction;
-  userId: string;
   room: Room;
 }
 
-export function RoomSettings({ onCopyLink, userId, room }: HeaderDropDownMenuProps) {
+export function RoomSettings({ onCopyLink, room }: HeaderDropDownMenuProps) {
+  const { userId } = useUserStore();
+
   const [isAliasDialogOpen, setIsAliasDialogOpen] = useState(false);
   const [isRoomNameDialogOpen, setIsRoomNameDialogOpen] = useState(false);
   const [isRoomMembersDialogOpen, setIsRoomMembersDialogOpen] = useState(false);
 
-  const isUserRoomCreator = userId === room.creator.id;
+  const isUserAdmin = room.users.find((user) => user.userId === userId)?.isAdmin;
 
   const { push } = useRouter();
 
@@ -56,7 +58,7 @@ export function RoomSettings({ onCopyLink, userId, room }: HeaderDropDownMenuPro
             Change user alias
           </DropdownMenuItem>
 
-          {isUserRoomCreator && (
+          {isUserAdmin && (
             <DropdownMenuItem onClick={() => setIsRoomNameDialogOpen(true)}>
               <SquarePen />
               Change room name
@@ -70,14 +72,22 @@ export function RoomSettings({ onCopyLink, userId, room }: HeaderDropDownMenuPro
 
           <DropdownMenuSeparator />
 
-          <DropdownMenuItem className="text-red-600" onClick={() => leaveRoom({ roomId: room.id, userId })}>
+          <DropdownMenuItem
+            className="text-red-600"
+            onClick={() => leaveRoom({ roomId: room.id, userId: userId ?? '' })}
+          >
             <DoorOpen className="text-red-600" />
             Leave room
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <ChangeUserAlias userId={userId} roomId={room.id} isOpen={isAliasDialogOpen} setIsOpen={setIsAliasDialogOpen} />
+      <ChangeUserAlias
+        userId={userId ?? ''}
+        roomId={room.id}
+        isOpen={isAliasDialogOpen}
+        setIsOpen={setIsAliasDialogOpen}
+      />
       <ChangeRoomName roomId={room.id} isOpen={isRoomNameDialogOpen} setIsOpen={setIsRoomNameDialogOpen} />
       <RoomMembers members={room.users} isOpen={isRoomMembersDialogOpen} setIsOpen={setIsRoomMembersDialogOpen} />
     </>

@@ -1,7 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
+import { compareAsc } from 'date-fns';
 
 @Injectable()
 export class UserService {
@@ -12,17 +13,28 @@ export class UserService {
     private userRepository: Repository<User>,
   ) {}
 
-  getUserById(userId: string) {
+  async getUserById(userId: string) {
     this.logger.log(`Fetching user by ID: ${userId}`);
-    return this.userRepository.findOne({
+
+    const user = await this.userRepository.findOne({
       where: { id: userId },
-      relations: ['rooms', 'createdRooms'],
-      order: {
-        rooms: {
-          createdAt: 'ASC',
-        },
-      },
+      relations: ['rooms', 'rooms.room'],
     });
+
+    if (!user) throw new NotFoundException('User not found');
+
+    const sortedRooms = user.rooms
+      .map((roomUser) => ({
+        id: roomUser.room.id,
+        name: roomUser.room.name,
+        disappearingMessages: roomUser.room.disappearingMessages,
+        createdAt: roomUser.room.createdAt,
+        joinedAt: roomUser.joinedAt,
+        isAdmin: roomUser.isAdmin,
+      }))
+      .sort((a, b) => compareAsc(a.joinedAt, b.joinedAt));
+
+    return { ...user, rooms: sortedRooms };
   }
 
   async createUser() {

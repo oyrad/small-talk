@@ -30,7 +30,7 @@ export default function Room() {
   const { mutate: joinRoom } = useJoinRoomMutation();
 
   const isPasswordProtected = !!room?.hasPassword;
-  const isUserInRoom = !!room?.users.find((user) => user.id === userId);
+  const isUserInRoom = !!room?.users.find((roomUser) => roomUser.userId === userId);
   const isAuthenticated = !isPasswordProtected || isUserInRoom;
 
   useRoomSocket({ room, isAuthenticated });

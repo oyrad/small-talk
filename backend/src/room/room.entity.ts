@@ -1,16 +1,7 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  JoinTable,
-  ManyToMany,
-  ManyToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
-import { User } from '../user/user.entity';
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Message } from '../message/message.entity';
 import { DisappearingMessages } from '../../types/disappearing-messages';
+import { RoomUser } from '../room-user/room-user.entity';
 
 @Entity()
 export class Room {
@@ -23,12 +14,8 @@ export class Room {
   @Column({ nullable: true })
   password?: string;
 
-  @ManyToMany(() => User, (user) => user.rooms)
-  @JoinTable()
-  users: Array<User>;
-
-  @ManyToOne(() => User, (user) => user.createdRooms)
-  creator: User;
+  @OneToMany(() => RoomUser, (roomUser) => roomUser.room, { cascade: true })
+  users: Array<RoomUser>;
 
   @OneToMany(() => Message, (message) => message.room)
   messages: Array<Message>;

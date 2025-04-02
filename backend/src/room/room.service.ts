@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Room } from './room.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -6,6 +6,7 @@ import * as bcrypt from 'bcrypt';
 import { User } from '../user/user.entity';
 import { isUUID } from 'class-validator';
 import { DisappearingMessages } from '../../types/disappearing-messages';
+import { RoomUser } from '../room-user/room-user.entity';
 
 @Injectable()
 export class RoomService {
@@ -16,6 +17,8 @@ export class RoomService {
     private readonly roomRepository: Repository<Room>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    @InjectRepository(RoomUser)
+    private readonly roomUserRepository: Repository<RoomUser>,
   ) {}
 
   async createRoom(userId: string, name: string, password: string, disappearingMessages: DisappearingMessages | null) {
@@ -24,17 +27,18 @@ export class RoomService {
     const user = await this.userRepository.findOne({ where: { id: userId } });
 
     if (!user) {
-      throw new BadRequestException('User not found');
+      throw new NotFoundException('User not found');
     }
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = password ? await bcrypt.hash(password, salt) : null;
 
+    const admin = this.roomUserRepository.create({ user, isAdmin: true });
+
     const room = this.roomRepository.create({
       name,
       password: hashedPassword,
-      users: [user],
-      creator: user,
+      users: [admin],
       disappearingMessages,
     });
     const savedRoom = await this.roomRepository.save(room);
@@ -51,32 +55,31 @@ export class RoomService {
     this.logger.log(`Fetching room by ID: ${id}`);
     const room = await this.roomRepository.findOne({
       where: { id },
-      relations: ['users', 'creator', 'messages'],
+      relations: ['users', 'users.user', 'messages'],
       order: {
         messages: {
           createdAt: 'ASC',
         },
       },
     });
+
+    if (!room) {
+      throw new NotFoundException('Room not found');
+    }
 
     const { password, ...roomWithoutPassword } = room;
 
     return {
       ...roomWithoutPassword,
       hasPassword: !!password,
+      users: room.users.map((roomUser) => ({
+        id: roomUser.id,
+        isAdmin: roomUser.isAdmin,
+        joinedAt: roomUser.joinedAt,
+        userId: roomUser.user.id,
+        alias: roomUser.user.alias,
+      })),
     };
-  }
-
-  async getRoomByIdWithPassword(id: string) {
-    return await this.roomRepository.findOne({
-      where: { id },
-      relations: ['users', 'creator', 'messages'],
-      order: {
-        messages: {
-          createdAt: 'ASC',
-        },
-      },
-    });
   }
 
   async updateRoomById(id: string, data: Partial<Room>) {
@@ -95,19 +98,29 @@ export class RoomService {
     const user = await this.userRepository.findOne({ where: { id: userId } });
 
     if (!user) {
-      throw new BadRequestException('User not found');
+      throw new NotFoundException('User not found');
     }
 
     const room = await this.roomRepository.findOne({ where: { id: roomId }, relations: ['users'] });
 
     if (!room) {
-      throw new BadRequestException('Room not found');
+      throw new NotFoundException('Room not found');
+    }
+
+    const isUserInRoom = await this.roomUserRepository.findOne({
+      where: { user, room },
+    });
+
+    if (isUserInRoom) {
+      throw new BadRequestException('User is already in the room');
     }
 
     if (!room.password) {
       this.logger.log(`Room ${roomId} has no password, allowing access, adding user ${userId} to room.`);
-      room.users.push(user);
-      await this.roomRepository.save(room);
+
+      const roomUser = this.roomUserRepository.create({ user, room, isAdmin: false });
+      await this.roomUserRepository.save(roomUser);
+
       return { success: true };
     }
 
@@ -119,8 +132,8 @@ export class RoomService {
     }
 
     this.logger.log(`Password validated successfully for room ${roomId}, adding user ${userId} to room.`);
-    room.users.push(user);
-    await this.roomRepository.save(room);
+    const roomUser = this.roomUserRepository.create({ user, room, isAdmin: false });
+    await this.roomUserRepository.save(roomUser);
 
     return { success: true };
   }
@@ -130,17 +143,25 @@ export class RoomService {
     const user = await this.userRepository.findOne({ where: { id: userId } });
 
     if (!user) {
-      throw new BadRequestException('User not found');
+      throw new NotFoundException('User not found');
     }
 
     const room = await this.roomRepository.findOne({ where: { id: roomId }, relations: ['users'] });
 
     if (!room) {
-      throw new BadRequestException('Room not found');
+      throw new NotFoundException('Room not found');
     }
 
-    room.users = room.users.filter((u) => u.id !== user.id);
-    await this.roomRepository.save(room);
+    const roomUser = await this.roomUserRepository.findOne({
+      where: { room: { id: roomId }, user: { id: userId } },
+      relations: ['room', 'user'],
+    });
+
+    if (!roomUser) {
+      throw new NotFoundException('User is not in this room');
+    }
+
+    await this.roomUserRepository.remove(roomUser);
     this.logger.log(`User ${userId} left room ${roomId}`);
 
     return room;

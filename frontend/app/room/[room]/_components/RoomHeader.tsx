@@ -2,7 +2,6 @@ import { Card } from '@/components/ui/card';
 import { SocketConnectionIndicator } from '@/app/room/[room]/_components/SocketConnectionIndicator';
 import { RoomSettings } from '@/app/room/[room]/_components/RoomSettings';
 import { toast } from 'sonner';
-import { useUserStore } from '@/stores/use-user-store';
 import { Room } from '@/types/room';
 
 interface RoomHeaderProps {
@@ -10,8 +9,6 @@ interface RoomHeaderProps {
 }
 
 export function RoomHeader({ room }: RoomHeaderProps) {
-  const { userId } = useUserStore();
-
   function copyRoomLink() {
     void navigator.clipboard.writeText(window.location.href);
     toast('Room link copied.');
@@ -37,7 +34,7 @@ export function RoomHeader({ room }: RoomHeaderProps) {
           </div>
         )}
 
-        <RoomSettings onCopyLink={copyRoomLink} userId={userId ?? ''} room={room} />
+        <RoomSettings onCopyLink={copyRoomLink} room={room} />
       </Card>
     </header>
   );

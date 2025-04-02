@@ -23,10 +23,10 @@ export class TaskService {
     this.logger.log(`Deleting empty rooms`);
     const rooms = await this.roomRepository
       .createQueryBuilder('room')
-      .leftJoinAndSelect('room.users', 'users')
+      .leftJoinAndSelect('room.users', 'roomUsers')
       .leftJoinAndSelect('room.messages', 'messages')
       .groupBy('room.id')
-      .having('(COUNT(users.id) = 1 AND COUNT(messages.id) = 0) OR COUNT(users.id) = 0')
+      .having('(COUNT(roomUsers.id) = 1 AND COUNT(messages.id) = 0) OR COUNT(roomUsers.id) = 0')
       .select('room.id')
       .getMany();
 
