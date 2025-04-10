@@ -1,9 +1,11 @@
+import { EventType } from './event-type';
+
 export interface ServerToClientEvents {
-  message: (payload: { roomId: string; content: string; userId: string; userAlias: string | null }) => void;
+  event: (payload: { type: EventType; roomId: string; userId: string; content?: string }) => void;
 }
 
 export interface ClientToServerEvents {
   'join-room': (roomId: string) => void;
   'leave-room': (roomId: string) => void;
-  message: (payload: { roomId: string; content: string; userId: string; userAlias: string | null }) => void;
+  event: (payload: { type: EventType; roomId: string; userId: string; content?: string }) => void;
 }

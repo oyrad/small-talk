@@ -1,7 +1,7 @@
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
-import { Room } from '@/types/room';
 import { fetchWithPrefix } from '@/utils/fetch-with-prefix';
 import { DisappearingMessages } from '@/types/disappearing-messages';
+import { Room } from '@/hooks/room/use-room-details-query';
 
 interface CreateRoomParams {
   name: string;

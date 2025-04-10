@@ -1,63 +1,56 @@
 'use client';
 
 import { socket } from '@/socket/socket';
-import { useParams } from 'next/navigation';
 import { useUserStore } from '@/stores/use-user-store';
 import { MessageList } from '@/app/room/[room]/_components/MessageList';
-import { useGetRoomByIdQuery } from '@/hooks/use-get-room-by-id-query';
+import { useRoomDetailsQuery } from '@/hooks/room/use-room-details-query';
 import { PasswordPrompt } from '@/app/room/[room]/_components/PasswordPrompt';
-import { useRoomSocket } from '@/hooks/use-room-socket';
-import { useSendMessageMutation } from '@/hooks/use-send-message-mutation';
-import { Button } from '@/components/ui/button';
-import { Send } from 'lucide-react';
-import TextareaAutosize from 'react-textarea-autosize';
-import { cn } from '@/lib/utils';
-import { FormEvent, useEffect, useRef, useState } from 'react';
-import { useJoinRoomMutation } from '@/hooks/use-join-room-mutation';
+import { useRoomSocket } from '@/hooks/room/use-room-socket';
+import { Info } from 'lucide-react';
+import { useEffect } from 'react';
+import { useJoinRoomMutation } from '@/hooks/room/use-join-room-mutation';
 import { Loader } from '@/app/_components/Loader';
 import { RoomHeader } from '@/app/room/[room]/_components/RoomHeader';
 import { RoomNotFound } from '@/app/room/[room]/_components/RoomNotFound';
+import { EVENT_TYPE } from '@/types/event-type';
+import { toast } from 'sonner';
+import { useRoomEventsQuery } from '@/hooks/room/use-room-events-query';
+import { useQueryClient } from '@tanstack/react-query';
+import { MessageInput } from '@/app/room/[room]/_components/MessageInput';
+import { useParams } from 'next/navigation';
 
 export default function Room() {
-  const [message, setMessage] = useState('');
+  const queryClient = useQueryClient();
   const { room: roomId } = useParams<{ room: string }>();
 
-  const { userId, userAlias } = useUserStore();
-  const messageInputRef = useRef<HTMLTextAreaElement | null>(null);
+  const { userId } = useUserStore();
 
-  const { data: room, isPending: isRoomLoading, error: roomError } = useGetRoomByIdQuery(roomId);
+  const { data: room, isPending: isRoomLoading, error: roomError } = useRoomDetailsQuery(roomId);
 
-  const { mutate: joinRoom } = useJoinRoomMutation();
+  const { mutateAsync: joinRoom } = useJoinRoomMutation({
+    onSuccess: () => {
+      socket.emit('event', {
+        type: EVENT_TYPE.USER_JOINED,
+        roomId: room?.id ?? '',
+        userId: userId ?? '',
+      });
+    },
+  });
 
   const isPasswordProtected = !!room?.hasPassword;
   const isUserInRoom = !!room?.users.find((roomUser) => roomUser.userId === userId);
   const isAuthenticated = !isPasswordProtected || isUserInRoom;
 
   useRoomSocket({ room, isAuthenticated });
-
-  const { mutate: sendMessage } = useSendMessageMutation({
-    onSuccess: (message) => {
-      socket.emit('message', { roomId: room?.id ?? '', content: message.content, userId: userId ?? '', userAlias });
-      setMessage('');
-    },
+  const { data: events } = useRoomEventsQuery(roomId, {
+    enabled: room ? isAuthenticated : false,
   });
 
   useEffect(() => {
     if (userId && room && !isPasswordProtected && !isUserInRoom) {
-      joinRoom({ roomId: room.id, userId: userId });
+      void joinRoom({ roomId: room.id, userId: userId });
     }
   }, [isPasswordProtected, isUserInRoom, joinRoom, room, userId]);
-
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    messageInputRef.current?.focus();
-
-    if (!message.trim().length) {
-      return;
-    }
-
-    sendMessage({ roomId: room?.id ?? '', userId: userId ?? '', content: message });
-  }
 
   if (isRoomLoading) {
     return <Loader />;
@@ -68,31 +61,39 @@ export default function Room() {
   }
 
   if (room.hasPassword && !isAuthenticated) {
-    return <PasswordPrompt />;
+    return (
+      <PasswordPrompt
+        onPasswordSubmit={async ({ password }) => {
+          const res = await joinRoom({ roomId, userId: userId ?? '', password });
+
+          if (!res.success) {
+            toast.error('Invalid password');
+            return;
+          }
+
+          return queryClient.invalidateQueries({ queryKey: ['room-details', roomId] });
+        }}
+      />
+    );
   }
 
   return (
     <div className="flex flex-col h-full p-4 gap-3">
       <RoomHeader room={room} />
 
-      <MessageList room={room} />
+      {room.disappearingMessages && (
+        <div className="text-xs flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl p-3 mx-4">
+          <Info className="size-5 min-w-5 text-gray-600" />
+          <p className="text-gray-800">
+            Disappearing messages are enabled. Messages will be deleted{' '}
+            <span className="font-semibold">{room.disappearingMessages}</span> after sending.
+          </p>
+        </div>
+      )}
 
-      <form onSubmit={handleSubmit} className="flex gap-2 items-center">
-        <TextareaAutosize
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          className={cn(
-            'border-input placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground flex w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none md:text-sm',
-            'focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]',
-          )}
-          placeholder="Message"
-          maxRows={4}
-          ref={messageInputRef}
-        />
-        <Button>
-          <Send />
-        </Button>
-      </form>
+      <MessageList events={events ?? []} />
+
+      <MessageInput />
     </div>
   );
 }

@@ -3,7 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { PropsWithChildren } from 'react';
 import { Controller, useForm } from 'react-hook-form';
-import { useCreateRoomMutation } from '@/hooks/use-create-room-mutation';
+import { useCreateRoomMutation } from '@/hooks/room/use-create-room-mutation';
 import { useRouter } from 'next/navigation';
 import { useUserStore } from '@/stores/use-user-store';
 import { DialogBody } from 'next/dist/client/components/react-dev-overlay/ui/components/dialog';

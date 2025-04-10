@@ -24,9 +24,9 @@ export class TaskService {
     const rooms = await this.roomRepository
       .createQueryBuilder('room')
       .leftJoinAndSelect('room.users', 'roomUsers')
-      .leftJoinAndSelect('room.messages', 'messages')
+      .leftJoinAndSelect('room.events', 'events')
       .groupBy('room.id')
-      .having('(COUNT(roomUsers.id) = 1 AND COUNT(messages.id) = 0) OR COUNT(roomUsers.id) = 0')
+      .having('(COUNT(roomUsers.id) = 1 AND COUNT(events.id) = 0) OR COUNT(roomUsers.id) = 0')
       .select('room.id')
       .getMany();
 
@@ -42,13 +42,13 @@ export class TaskService {
     timeZone: 'Europe/Zagreb',
   })
   async disappearingMessagesTenMinutes() {
-    this.logger.log(`Deleting messages in rooms with disappearing messages set to 10 minutes`);
+    this.logger.log(`Deleting events in rooms with disappearing messages set to 10 minutes`);
     const rooms = await this.roomRepository.find({
       where: { disappearingMessages: DISAPPEARING_MESSAGES.TEN_MINUTES },
-      relations: ['messages'],
+      relations: ['events'],
     });
 
-    void this.deleteMessages(rooms, minutesToMilliseconds(10));
+    void this.deleteEvents(rooms, minutesToMilliseconds(10));
   }
 
   @Cron(CronExpression.EVERY_MINUTE, {
@@ -56,13 +56,13 @@ export class TaskService {
     timeZone: 'Europe/Zagreb',
   })
   async disappearingMessagesThirtyMinutes() {
-    this.logger.log(`Deleting messages in rooms with disappearing messages set to 30 minutes`);
+    this.logger.log(`Deleting events in rooms with disappearing messages set to 30 minutes`);
     const rooms = await this.roomRepository.find({
       where: { disappearingMessages: DISAPPEARING_MESSAGES.THIRTY_MINUTES },
-      relations: ['messages'],
+      relations: ['events'],
     });
 
-    void this.deleteMessages(rooms, minutesToMilliseconds(30));
+    void this.deleteEvents(rooms, minutesToMilliseconds(30));
   }
 
   @Cron(CronExpression.EVERY_5_MINUTES, {
@@ -70,13 +70,13 @@ export class TaskService {
     timeZone: 'Europe/Zagreb',
   })
   async disappearingMessagesOneHour() {
-    this.logger.log(`Deleting messages in rooms with disappearing messages set to 1 hour`);
+    this.logger.log(`Deleting events in rooms with disappearing messages set to 1 hour`);
     const rooms = await this.roomRepository.find({
       where: { disappearingMessages: DISAPPEARING_MESSAGES.ONE_HOUR },
-      relations: ['messages'],
+      relations: ['events'],
     });
 
-    void this.deleteMessages(rooms, hoursToMilliseconds(1));
+    void this.deleteEvents(rooms, hoursToMilliseconds(1));
   }
 
   @Cron(CronExpression.EVERY_30_MINUTES, {
@@ -84,26 +84,26 @@ export class TaskService {
     timeZone: 'Europe/Zagreb',
   })
   async disappearingMessagesOneDay() {
-    this.logger.log(`Deleting messages in rooms with disappearing messages set to 1 day`);
+    this.logger.log(`Deleting events in rooms with disappearing messages set to 1 day`);
     const rooms = await this.roomRepository.find({
       where: { disappearingMessages: DISAPPEARING_MESSAGES.ONE_DAY },
-      relations: ['messages'],
+      relations: ['events'],
     });
 
-    void this.deleteMessages(rooms, hoursToMilliseconds(24));
+    void this.deleteEvents(rooms, hoursToMilliseconds(24));
   }
 
-  async deleteMessages(rooms: Array<Room>, differenceThresholdInMs: number) {
+  async deleteEvents(rooms: Array<Room>, differenceThresholdInMs: number) {
     for (const room of rooms) {
-      const messagesToDelete = room.messages.filter((message) => {
-        const diff = new Date().getTime() - message.createdAt.getTime();
+      const eventsToDelete = room.events.filter((evt) => {
+        const diff = new Date().getTime() - evt.createdAt.getTime();
         return diff > differenceThresholdInMs;
       });
 
-      if (messagesToDelete.length > 0) {
-        const messageIds = messagesToDelete.map((message) => message.id);
-        this.logger.log(`Deleting messages with IDs: ${messageIds.join(', ')}`);
-        await this.roomRepository.createQueryBuilder().relation(Room, 'messages').of(room).remove(messageIds);
+      if (eventsToDelete.length > 0) {
+        const messageIds = eventsToDelete.map((evt) => evt.id);
+        this.logger.log(`Deleting events with IDs: ${messageIds.join(', ')}`);
+        await this.roomRepository.createQueryBuilder().relation(Room, 'events').of(room).remove(messageIds);
       }
     }
   }

@@ -1,6 +1,6 @@
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 import { fetchWithPrefix } from '@/utils/fetch-with-prefix';
-import { Room } from '@/types/room';
+import { Room } from '@/hooks/room/use-room-details-query';
 
 interface UpdateRoomParams {
   id: string;

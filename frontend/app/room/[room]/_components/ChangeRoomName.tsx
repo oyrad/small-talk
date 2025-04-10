@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { PropsWithChildren } from 'react';
-import { useUpdateRoomMutation } from '@/hooks/use-update-room-mutation';
+import { useUpdateRoomMutation } from '@/hooks/room/use-update-room-mutation';
 import { useForm } from 'react-hook-form';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -31,7 +31,7 @@ export function ChangeRoomName({ roomId, isOpen, setIsOpen, children }: ChangeRo
   const { mutate: updateRoom } = useUpdateRoomMutation({
     onSuccess: async () => {
       setIsOpen(false);
-      await queryClient.invalidateQueries({ queryKey: ['room', roomId] });
+      await queryClient.invalidateQueries({ queryKey: ['room-details', roomId] });
     },
   });
 

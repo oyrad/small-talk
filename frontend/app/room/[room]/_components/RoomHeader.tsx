@@ -2,7 +2,7 @@ import { Card } from '@/components/ui/card';
 import { SocketConnectionIndicator } from '@/app/room/[room]/_components/SocketConnectionIndicator';
 import { RoomSettings } from '@/app/room/[room]/_components/RoomSettings';
 import { toast } from 'sonner';
-import { Room } from '@/types/room';
+import { Room } from '@/hooks/room/use-room-details-query';
 
 interface RoomHeaderProps {
   room: Room;

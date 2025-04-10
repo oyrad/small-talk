@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useCreateUserMutation } from '@/hooks/use-create-user-mutation';
+import { useCreateUserMutation } from '@/hooks/user/use-create-user-mutation';
 import { useUserStore } from '@/stores/use-user-store';
 
 export function InitializeUser() {

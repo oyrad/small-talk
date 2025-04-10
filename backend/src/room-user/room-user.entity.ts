@@ -13,6 +13,9 @@ export class RoomUser {
   @ManyToOne(() => Room, (room) => room.users, { onDelete: 'CASCADE' })
   room: Room;
 
+  @Column({ nullable: true })
+  alias: string;
+
   @Column()
   isAdmin: boolean;
 

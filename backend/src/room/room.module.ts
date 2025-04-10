@@ -3,11 +3,12 @@ import { RoomController } from './room.controller';
 import { RoomService } from './room.service';
 import { Room } from './room.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserModule } from '../user/user.module';
-import { RoomUserModule } from '../room-user/room-user.module';
+import { RoomUser } from '../room-user/room-user.entity';
+import { User } from '../user/user.entity';
+import { Event } from '../event/event.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Room]), UserModule, RoomUserModule],
+  imports: [TypeOrmModule.forFeature([Room, User, RoomUser, Event])],
   controllers: [RoomController],
   providers: [RoomService],
   exports: [RoomService],

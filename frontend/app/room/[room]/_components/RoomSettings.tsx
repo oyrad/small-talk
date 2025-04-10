@@ -7,14 +7,17 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useState } from 'react';
 import { Copy, DoorOpen, Settings, SquarePen, UserRoundPen, Users } from 'lucide-react';
-import { ChangeUserAlias } from '@/app/room/[room]/_components/ChangeUserAlias';
 import { ChangeRoomName } from '@/app/room/[room]/_components/ChangeRoomName';
 import { Button } from '@/components/ui/button';
-import { Room } from '@/types/room';
 import { RoomMembers } from '@/app/room/[room]/_components/RoomMembers';
-import { useLeaveRoomMutation } from '@/hooks/use-leave-room-mutation';
+import { useLeaveRoomMutation } from '@/hooks/room/use-leave-room-mutation';
 import { useRouter } from 'next/navigation';
 import { useUserStore } from '@/stores/use-user-store';
+import { socket } from '@/socket/socket';
+import { EVENT_TYPE } from '@/types/event-type';
+import { Room } from '@/hooks/room/use-room-details-query';
+import { CHANGE_ALIAS_FORM_LOCATION } from '@/types/change-user-alias-location';
+import { ChangeUserAlias } from '@/app/room/[room]/_components/ChangeUserAlias';
 
 interface HeaderDropDownMenuProps {
   onCopyLink: VoidFunction;
@@ -35,6 +38,11 @@ export function RoomSettings({ onCopyLink, room }: HeaderDropDownMenuProps) {
   const { mutate: leaveRoom } = useLeaveRoomMutation({
     onSuccess: () => {
       push('/');
+      socket.emit('event', {
+        type: EVENT_TYPE.USER_LEFT,
+        roomId: room.id,
+        userId: userId ?? '',
+      });
     },
   });
 
@@ -83,6 +91,7 @@ export function RoomSettings({ onCopyLink, room }: HeaderDropDownMenuProps) {
       </DropdownMenu>
 
       <ChangeUserAlias
+        location={CHANGE_ALIAS_FORM_LOCATION.ROOM}
         userId={userId ?? ''}
         roomId={room.id}
         isOpen={isAliasDialogOpen}

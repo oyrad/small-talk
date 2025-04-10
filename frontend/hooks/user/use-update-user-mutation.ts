@@ -1,6 +1,6 @@
-import { User } from '@/types/user';
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 import { fetchWithPrefix } from '@/utils/fetch-with-prefix';
+import { User } from '@/hooks/user/use-get-user-by-id-query';
 
 interface UpdateUserParams {
   userId: string;

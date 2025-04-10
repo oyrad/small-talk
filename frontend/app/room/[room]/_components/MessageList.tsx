@@ -1,12 +1,12 @@
-import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { useUserStore } from '@/stores/use-user-store';
 import { useEffect, useRef } from 'react';
 import { getMessageTime } from '@/utils/get-message-time';
 import { isSameDay } from 'date-fns';
 import Linkify from 'linkify-react';
-import { Room } from '@/types/room';
-import { Info } from 'lucide-react';
+import { EVENT_TYPE } from '@/types/event-type';
+import { Badge } from '@/components/ui/badge';
+import { Event } from '@/hooks/room/use-room-events-query';
 
 function MessageTimestamp({ timestamp }: { timestamp: string }) {
   return <p className="text-gray-400 text-[0.70rem] whitespace-nowrap">{getMessageTime(timestamp)}</p>;
@@ -14,88 +14,101 @@ function MessageTimestamp({ timestamp }: { timestamp: string }) {
 
 function DateMarker({ date, className = '' }: { date: string; className?: string }) {
   return (
-    <p
-      className={cn('text-xs text-center bg-stone-100 text-slate-800 mx-auto px-3 py-0.5 rounded-lg w-fit', className)}
-    >
-      {date}
-    </p>
+    <Badge variant="secondary" className={cn('mx-auto px-3 py-0.5 rounded-lg w-fit', className)}>
+      {new Date(date).toLocaleDateString()}
+    </Badge>
   );
 }
 
 interface MessageListProps {
-  room: Room;
+  events: Array<Event>;
 }
 
-export function MessageList({ room }: MessageListProps) {
+export function MessageList({ events }: MessageListProps) {
   const { userId } = useUserStore();
-  const { messages } = room;
 
-  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const eventsEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (!messagesEndRef.current || !messages.length) return;
+    if (!eventsEndRef.current || !events.length) return;
 
-    messagesEndRef.current.scrollIntoView({ behavior: 'instant' });
-  }, [messages, userId]);
+    eventsEndRef.current.scrollIntoView({ behavior: 'instant' });
+  }, [events, userId]);
 
   return (
-    <>
-      {room.disappearingMessages && (
-        <div className="z-10 text-xs sticky top-0 flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl p-3 mx-4">
-          <Info className="size-5 min-w-5 text-gray-600" />
-          <p className="text-gray-800">
-            Disappearing messages are enabled. Messages will be deleted{' '}
-            <span className="font-semibold">{room.disappearingMessages}</span> after sending.
-          </p>
-        </div>
-      )}
+    <div
+      className="flex flex-col flex-grow min-h-0 overflow-y-auto gap-2 relative px-2 whitespace-pre-wrap"
+      style={{
+        overflowWrap: 'anywhere',
+      }}
+    >
+      {events.map((evt, index) => (
+        <div key={index} className="flex flex-col">
+          {index === 0 && <DateMarker date={evt.createdAt} className="mb-2" />}
 
-      <div
-        className="flex flex-col flex-grow min-h-0 overflow-y-auto gap-1 relative px-2 whitespace-pre-wrap"
-        style={{
-          overflowWrap: 'anywhere',
-        }}
-      >
-        {messages.map((msg, index) => (
-          <div key={index}>
-            {index === 0 && <DateMarker date={new Date(msg.createdAt).toLocaleDateString()} className="mb-2" />}
+          {index !== 0 && !isSameDay(new Date(evt?.createdAt), new Date(events[index - 1].createdAt)) && (
+            <DateMarker date={evt.createdAt} className="mb-2" />
+          )}
 
-            {index !== 0 && !isSameDay(new Date(msg?.createdAt), new Date(messages[index - 1].createdAt)) && (
-              <DateMarker date={new Date(msg.createdAt).toLocaleDateString()} className="my-3" />
-            )}
+          {evt.type === EVENT_TYPE.ROOM_CREATED && (
+            <p className="mx-auto my-0.5 bg-blue-100 text-center text-xs px-2.5 py-0.5 rounded-xl">
+              {evt.user.alias ?? evt.user.id} created the room
+            </p>
+          )}
 
-            {msg.user.id !== messages[index - 1]?.user.id && (
-              <p className={cn('text-gray-700 text-xs mb-1', msg.user.id === userId && 'text-right')}>
-                {msg.user.alias ?? msg.user.id}
-              </p>
-            )}
+          {evt.type === EVENT_TYPE.USER_JOINED && (
+            <p className="mx-auto my-0.5 bg-emerald-100 text-center text-xs px-2.5 py-0.5 rounded-xl">
+              {evt.user.alias ?? evt.user.id} joined the room
+            </p>
+          )}
 
-            <div className={cn('flex gap-1 text-sm items-end', msg.user.id === userId && 'ml-auto flex-row-reverse')}>
-              <Card
-                key={index}
+          {evt.type === EVENT_TYPE.USER_LEFT && (
+            <p className="mx-auto my-0.5 bg-rose-100 text-center text-xs px-2.5 py-0.5 rounded-xl">
+              {evt.user.alias ?? evt.user.id} left the room
+            </p>
+          )}
+
+          {evt.type === EVENT_TYPE.MESSAGE && (
+            <>
+              {evt.user.userId !== events[index - 1]?.user.userId && (
+                <p className={cn('text-gray-700 text-xs mb-1', evt.user.userId === userId && 'text-right')}>
+                  {evt.user.alias ?? evt.user.userId}
+                </p>
+              )}
+
+              <div
                 className={cn(
-                  'px-3 py-1 bg-gray-200 text-black rounded-xl border-none hyphens-auto',
-                  msg.user.id === userId && 'bg-gray-700 text-white',
+                  'flex gap-1 text-sm items-end',
+                  evt.user.userId === userId && 'ml-auto flex-row-reverse',
+                  evt.user.id === events[index - 1]?.user.id && '-mt-1',
                 )}
               >
-                <Linkify
-                  options={{
-                    className: msg.user.id === userId ? 'text-blue-300 underline' : 'text-blue-700 underline',
-                    target: '_blank',
-                    rel: 'noopener noreferrer',
-                  }}
+                <p
+                  key={index}
+                  className={cn(
+                    'px-3 py-1 rounded-xl bg-gray-200 text-black hyphens-auto',
+                    evt.user.userId === userId && 'bg-gray-700 text-white',
+                  )}
                 >
-                  {msg.content}
-                </Linkify>
-              </Card>
+                  <Linkify
+                    options={{
+                      className: evt.user.userId === userId ? 'text-blue-300 underline' : 'text-blue-700 underline',
+                      target: '_blank',
+                      rel: 'noopener noreferrer',
+                    }}
+                  >
+                    {evt.content}
+                  </Linkify>
+                </p>
 
-              <MessageTimestamp timestamp={msg.createdAt} />
-            </div>
-          </div>
-        ))}
+                <MessageTimestamp timestamp={evt.createdAt} />
+              </div>
+            </>
+          )}
+        </div>
+      ))}
 
-        <div ref={messagesEndRef} />
-      </div>
-    </>
+      <div ref={eventsEndRef} />
+    </div>
   );
 }

@@ -35,15 +35,8 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     console.log(`Client ${client.id} left room: ${roomId}`);
   }
 
-  @SubscribeMessage('message')
-  handleMessage(client: TypedSocket, payload: Parameters<ClientToServerEvents['message']>[0]) {
-    const { userId, userAlias, roomId, content } = payload;
-
-    this.server.to(roomId).emit('message', {
-      roomId,
-      content,
-      userId,
-      userAlias,
-    });
+  @SubscribeMessage('event')
+  handleMessageEvent(_: TypedSocket, payload: Parameters<ClientToServerEvents['event']>[0]) {
+    this.server.to(payload.roomId).emit('event', payload);
   }
 }

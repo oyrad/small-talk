@@ -1,6 +1,20 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
-import { User } from '@/types/user';
 import { fetchWithPrefix } from '@/utils/fetch-with-prefix';
+import { DisappearingMessages } from '@/types/disappearing-messages';
+
+export interface User {
+  id: string;
+  alias: string | null;
+  rooms: Array<{
+    id: string;
+    name: string;
+    disappearingMessages: DisappearingMessages | null;
+    createdAt: string;
+    joinedAt: string;
+    isAdmin: boolean;
+  }>;
+  createdAt: string;
+}
 
 async function getUserById(userId: string): Promise<User> {
   const response = await fetchWithPrefix(`user/${userId}`);

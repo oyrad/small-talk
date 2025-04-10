@@ -35,10 +35,11 @@ export function useJoinRoomMutation(
   return useMutation({
     mutationFn: joinRoom,
     onSuccess: (...args) => {
+      console.log({ args });
       options?.onSuccess?.(...args);
 
       if (args[0].success) {
-        return queryClient.invalidateQueries({ queryKey: ['room', args[1].roomId] });
+        return queryClient.invalidateQueries({ queryKey: ['room-details', args[1].roomId] });
       }
     },
     ...options,

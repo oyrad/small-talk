@@ -3,14 +3,15 @@
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useUserStore } from '@/stores/use-user-store';
-import { ChangeUserAlias } from '@/app/room/[room]/_components/ChangeUserAlias';
 import { useState } from 'react';
-import { useGetUserByIdQuery } from '@/hooks/use-get-user-by-id-query';
+import { useGetUserByIdQuery } from '@/hooks/user/use-get-user-by-id-query';
 import { ArrowRight, Edit, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CreateRoom } from '@/app/_components/CreateRoom';
 import { Loader } from '@/app/_components/Loader';
 import Link from 'next/link';
+import { CHANGE_ALIAS_FORM_LOCATION } from '@/types/change-user-alias-location';
+import { ChangeUserAlias } from '@/app/room/[room]/_components/ChangeUserAlias';
 
 export default function Home() {
   const [isAliasModalOpen, setIsAliasModalOpen] = useState(false);
@@ -38,7 +39,12 @@ export default function Home() {
           )}
         </div>
 
-        <ChangeUserAlias userId={userId ?? ''} isOpen={isAliasModalOpen} setIsOpen={setIsAliasModalOpen}>
+        <ChangeUserAlias
+          location={CHANGE_ALIAS_FORM_LOCATION.HOME}
+          userId={userId ?? ''}
+          isOpen={isAliasModalOpen}
+          setIsOpen={setIsAliasModalOpen}
+        >
           <Button variant="outline" size="icon">
             <Edit className="size-5" />
           </Button>

@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { socket } from '@/socket/socket';
 import { useQueryClient } from '@tanstack/react-query';
-import { Room } from '@/types/room';
+import { Room } from '@/hooks/room/use-room-details-query';
 
 interface UseRoomSocketParams {
   room: Room | undefined;
@@ -20,8 +20,8 @@ export function useRoomSocket({ room, isAuthenticated }: UseRoomSocketParams) {
 
     socket.emit('join-room', room.id);
 
-    const messageHandler = () => queryClient.invalidateQueries({ queryKey: ['room', room.id] });
-    socket.on('message', messageHandler);
+    const eventHandler = () => queryClient.invalidateQueries({ queryKey: ['room-events', room.id] });
+    socket.on('event', eventHandler);
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'visible' && !socket.connected) {
@@ -33,7 +33,7 @@ export function useRoomSocket({ room, isAuthenticated }: UseRoomSocketParams) {
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
-      socket.off('message', messageHandler);
+      socket.off('event', eventHandler);
       socket.emit('leave-room', room.id);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };

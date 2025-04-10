@@ -1,5 +1,5 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { Message } from '../message/message.entity';
+import { Event } from '../event/event.entity';
 import { DisappearingMessages } from '../../types/disappearing-messages';
 import { RoomUser } from '../room-user/room-user.entity';
 
@@ -17,8 +17,8 @@ export class Room {
   @OneToMany(() => RoomUser, (roomUser) => roomUser.room, { cascade: true })
   users: Array<RoomUser>;
 
-  @OneToMany(() => Message, (message) => message.room)
-  messages: Array<Message>;
+  @OneToMany(() => Event, (event) => event.room)
+  events: Event[];
 
   @Column({ nullable: true })
   disappearingMessages: DisappearingMessages;

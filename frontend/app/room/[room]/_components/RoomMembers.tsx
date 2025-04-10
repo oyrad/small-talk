@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { PropsWithChildren } from 'react';
-import { Room } from '@/types/room';
 import { DialogBody } from 'next/dist/client/components/react-dev-overlay/ui/components/dialog';
+import { Room } from '@/hooks/room/use-room-details-query';
 
 interface RoomMembersProps extends PropsWithChildren {
   members: Room['users'];

@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import { RoomService } from './room.service';
 import { Room } from './room.entity';
 import { DisappearingMessages } from '../../types/disappearing-messages';
+import { RoomUser } from '../room-user/room-user.entity';
 
 @Controller('api/room')
 export class RoomController {
@@ -17,9 +18,14 @@ export class RoomController {
     return this.roomService.createRoom(userId, name, password, disappearingMessages);
   }
 
-  @Get(':id')
-  getRoom(@Param('id') id: string) {
-    return this.roomService.getRoomById(id);
+  @Get(':id/details')
+  getRoomDetails(@Param('id') id: string) {
+    return this.roomService.getRoomDetails(id);
+  }
+
+  @Get(':id/events')
+  getRoomEvents(@Param('id') id: string) {
+    return this.roomService.getRoomEvents(id);
   }
 
   @Patch(':id')
@@ -35,5 +41,11 @@ export class RoomController {
   @Post(':id/leave')
   leaveRoom(@Param('id') roomId: string, @Body('userId') userId: string) {
     return this.roomService.leaveRoom(roomId, userId);
+  }
+
+  @Patch(':roomId/user/:userId')
+  updateRoomUser(@Param('roomId') roomId: string, @Param('userId') userId: string, @Body() data: Partial<RoomUser>) {
+    console.log({ roomId, userId, data });
+    return this.roomService.updateRoomUser(roomId, userId, data);
   }
 }
