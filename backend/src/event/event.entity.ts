@@ -24,7 +24,7 @@ export class Event {
   @Column()
   userId: string;
 
-  @Column()
+  @Column({ nullable: true })
   alias: string;
 
   @CreateDateColumn()
