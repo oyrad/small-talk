@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils';
 import { useUserStore } from '@/stores/use-user-store';
 import { useEffect, useRef } from 'react';
 import { getMessageTime } from '@/utils/get-message-time';
-import { isSameDay } from 'date-fns';
+import { isSameDay, isToday, isYesterday } from 'date-fns';
 import Linkify from 'linkify-react';
 import { EVENT_TYPE } from '@/types/event-type';
 import { Badge } from '@/components/ui/badge';
@@ -15,7 +15,11 @@ function MessageTimestamp({ timestamp }: { timestamp: string }) {
 function DateMarker({ date, className = '' }: { date: string; className?: string }) {
   return (
     <Badge variant="secondary" className={cn('mx-auto px-3 py-0.5 rounded-lg w-fit', className)}>
-      {new Date(date).toLocaleDateString()}
+      {isToday(new Date(date))
+        ? 'Today'
+        : isYesterday(new Date(date))
+          ? 'Yesterday'
+          : new Date(date).toLocaleDateString()}
     </Badge>
   );
 }
@@ -52,19 +56,19 @@ export function MessageList({ events }: MessageListProps) {
 
           {evt.type === EVENT_TYPE.ROOM_CREATED && (
             <p className="mx-auto my-0.5 bg-blue-100 text-center text-xs px-2.5 py-0.5 rounded-xl">
-              {evt.user.alias ?? evt.user.id} created the room
+              {evt.user.alias ?? evt.user.userId} created the room
             </p>
           )}
 
           {evt.type === EVENT_TYPE.USER_JOINED && (
             <p className="mx-auto my-0.5 bg-emerald-100 text-center text-xs px-2.5 py-0.5 rounded-xl">
-              {evt.user.alias ?? evt.user.id} joined the room
+              {evt.user.alias ?? evt.user.userId} joined the room
             </p>
           )}
 
           {evt.type === EVENT_TYPE.USER_LEFT && (
             <p className="mx-auto my-0.5 bg-rose-100 text-center text-xs px-2.5 py-0.5 rounded-xl">
-              {evt.user.alias ?? evt.user.id} left the room
+              {evt.user.alias ?? evt.user.userId} left the room
             </p>
           )}
 
@@ -80,7 +84,7 @@ export function MessageList({ events }: MessageListProps) {
                 className={cn(
                   'flex gap-1 text-sm items-end',
                   evt.user.userId === userId && 'ml-auto flex-row-reverse',
-                  evt.user.id === events[index - 1]?.user.id && '-mt-1',
+                  evt.user.userId === events[index - 1]?.user.userId && '-mt-1',
                 )}
               >
                 <p

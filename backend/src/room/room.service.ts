@@ -55,7 +55,7 @@ export class RoomService {
       content: null,
       user: admin,
       room: savedRoom,
-      userId: admin.id,
+      userId: admin.user.id,
       alias: admin.alias,
     });
     await this.eventRepository.save(event);
@@ -215,7 +215,7 @@ export class RoomService {
         content: null,
         user: roomUser,
         room,
-        userId: roomUser.id,
+        userId: roomUser.user.id,
         alias: roomUser.alias,
       });
       await this.eventRepository.save(event);
@@ -239,7 +239,7 @@ export class RoomService {
       content: null,
       user: roomUser,
       room,
-      userId: roomUser.id,
+      userId: roomUser.user.id,
       alias: roomUser.alias,
     });
     await this.eventRepository.save(event);
@@ -275,7 +275,7 @@ export class RoomService {
       content: null,
       user: roomUser,
       room,
-      userId: roomUser.id,
+      userId: roomUser.user.id,
       alias: roomUser.alias,
     });
     await this.eventRepository.save(event);
