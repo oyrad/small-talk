@@ -1,20 +1,20 @@
+import { useEffect, useRef } from 'react';
+import { isSameDay, isToday, isYesterday } from 'date-fns';
+
 import { cn } from '@/lib/utils';
 import { useUserStore } from '@/stores/use-user-store';
-import { useEffect, useRef } from 'react';
-import { getMessageTime } from '@/utils/get-message-time';
-import { isSameDay, isToday, isYesterday } from 'date-fns';
-import Linkify from 'linkify-react';
 import { EVENT_TYPE } from '@/types/event-type';
 import { Badge } from '@/components/ui/badge';
 import { Event } from '@/hooks/room/use-room-events-query';
+import { Message } from '@/app/room/[room]/_components/Message';
 
-function MessageTimestamp({ timestamp }: { timestamp: string }) {
-  return <p className="text-gray-400 text-[0.70rem] whitespace-nowrap">{getMessageTime(timestamp)}</p>;
+function SystemEvent({ text, className }: { text: string; className: string }) {
+  return <p className={cn('mx-auto mt-2 mb-1 text-center text-xs px-2.5 py-0.5 rounded-xl', className)}>{text}</p>;
 }
 
 function DateMarker({ date, className = '' }: { date: string; className?: string }) {
   return (
-    <Badge variant="secondary" className={cn('mx-auto px-3 py-0.5 rounded-lg w-fit', className)}>
+    <Badge variant="secondary" className={cn('mx-auto px-3 py-0.5 rounded-lg w-fit mb-2', className)}>
       {isToday(new Date(date))
         ? 'Today'
         : isYesterday(new Date(date))
@@ -30,7 +30,6 @@ interface MessageListProps {
 
 export function MessageList({ events }: MessageListProps) {
   const { userId } = useUserStore();
-
   const eventsEndRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -39,76 +38,50 @@ export function MessageList({ events }: MessageListProps) {
     eventsEndRef.current.scrollIntoView({ behavior: 'instant' });
   }, [events, userId]);
 
+  const shouldShowDate = (currIndex: number) => {
+    if (currIndex === 0) return true;
+    return !isSameDay(new Date(events[currIndex].createdAt), new Date(events[currIndex - 1].createdAt));
+  };
+
+  const shouldShowAlias = (currIndex: number) => {
+    const current = events[currIndex];
+    if (current.type !== EVENT_TYPE.MESSAGE) return false;
+
+    if (currIndex === 0) return true;
+
+    const prev = events[currIndex - 1];
+
+    const currentDate = new Date(current.createdAt);
+    const prevDate = new Date(prev.createdAt);
+    if (!isSameDay(currentDate, prevDate)) return true;
+
+    if (prev.type !== EVENT_TYPE.MESSAGE) return true;
+
+    return prev.user.userId !== current.user.userId;
+  };
+
   return (
     <div
-      className="flex flex-col flex-grow min-h-0 overflow-y-auto gap-2 relative px-2 whitespace-pre-wrap"
-      style={{
-        overflowWrap: 'anywhere',
-      }}
+      className="flex flex-col flex-grow min-h-0 overflow-y-auto relative px-2 whitespace-pre-wrap gap-2"
+      style={{ overflowWrap: 'anywhere' }}
     >
       {events.map((evt, index) => (
         <div key={index} className="flex flex-col">
-          {index === 0 && <DateMarker date={evt.createdAt} className="mb-2" />}
-
-          {index !== 0 && !isSameDay(new Date(evt?.createdAt), new Date(events[index - 1].createdAt)) && (
-            <DateMarker date={evt.createdAt} className="mb-2" />
-          )}
+          {shouldShowDate(index) && <DateMarker date={evt.createdAt} />}
 
           {evt.type === EVENT_TYPE.ROOM_CREATED && (
-            <p className="mx-auto my-0.5 bg-blue-100 text-center text-xs px-2.5 py-0.5 rounded-xl">
-              {evt.user.alias ?? evt.user.userId} created the room
-            </p>
+            <SystemEvent text={`${evt.user.alias ?? evt.user.userId} created the room`} className="bg-blue-100" />
           )}
 
           {evt.type === EVENT_TYPE.USER_JOINED && (
-            <p className="mx-auto my-0.5 bg-emerald-100 text-center text-xs px-2.5 py-0.5 rounded-xl">
-              {evt.user.alias ?? evt.user.userId} joined the room
-            </p>
+            <SystemEvent text={`${evt.user.alias ?? evt.user.userId} joined the room`} className="bg-emerald-100" />
           )}
 
           {evt.type === EVENT_TYPE.USER_LEFT && (
-            <p className="mx-auto my-0.5 bg-rose-100 text-center text-xs px-2.5 py-0.5 rounded-xl">
-              {evt.user.alias ?? evt.user.userId} left the room
-            </p>
+            <SystemEvent text={`${evt.user.alias ?? evt.user.userId} left the room`} className="bg-rose-100" />
           )}
 
-          {evt.type === EVENT_TYPE.MESSAGE && (
-            <>
-              {evt.user.userId !== events[index - 1]?.user.userId && (
-                <p className={cn('text-gray-700 text-xs mb-1', evt.user.userId === userId && 'text-right')}>
-                  {evt.user.alias ?? evt.user.userId}
-                </p>
-              )}
-
-              <div
-                className={cn(
-                  'flex gap-1 text-sm items-end',
-                  evt.user.userId === userId && 'ml-auto flex-row-reverse',
-                  evt.user.userId === events[index - 1]?.user.userId && '-mt-1',
-                )}
-              >
-                <p
-                  key={index}
-                  className={cn(
-                    'px-3 py-1 rounded-xl bg-gray-200 text-black hyphens-auto',
-                    evt.user.userId === userId && 'bg-gray-700 text-white',
-                  )}
-                >
-                  <Linkify
-                    options={{
-                      className: evt.user.userId === userId ? 'text-blue-300 underline' : 'text-blue-700 underline',
-                      target: '_blank',
-                      rel: 'noopener noreferrer',
-                    }}
-                  >
-                    {evt.content}
-                  </Linkify>
-                </p>
-
-                <MessageTimestamp timestamp={evt.createdAt} />
-              </div>
-            </>
-          )}
+          {evt.type === EVENT_TYPE.MESSAGE && <Message event={evt} shouldShowAlias={shouldShowAlias(index)} />}
         </div>
       ))}
 
