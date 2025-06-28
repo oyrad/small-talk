@@ -22,14 +22,14 @@ export function RoomMembers({ members, isOpen, setIsOpen, children }: RoomMember
               if (!member.alias) {
                 return (
                   <p key={member.id} className="font-semibold text-sm text-start">
-                    {member.id}
+                    {member.userId}
                   </p>
                 );
               } else {
                 return (
                   <div key={member.id} className="flex flex-col items-start">
                     <p className="font-semibold text-sm">{member.alias}</p>
-                    <p className="text-xs text-gray-500">{member.id}</p>
+                    <p className="text-xs text-gray-500">{member.userId}</p>
                   </div>
                 );
               }

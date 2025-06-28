@@ -14,7 +14,7 @@ function SystemEvent({ text, className }: { text: string; className: string }) {
 
 function DateMarker({ date, className = '' }: { date: string; className?: string }) {
   return (
-    <Badge variant="secondary" className={cn('mx-auto px-3 py-0.5 rounded-lg w-fit mb-2', className)}>
+    <Badge variant="secondary" className={cn('mx-auto px-3 py-0.5 rounded-lg w-fit mb-1.5', className)}>
       {isToday(new Date(date))
         ? 'Today'
         : isYesterday(new Date(date))
