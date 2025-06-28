@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { isSameDay, isToday, isYesterday } from 'date-fns';
 
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils/cn';
 import { useUserStore } from '@/stores/use-user-store';
 import { EVENT_TYPE } from '@/types/event-type';
 import { Badge } from '@/components/ui/badge';

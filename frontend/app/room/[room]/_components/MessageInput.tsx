@@ -1,5 +1,5 @@
 import TextareaAutosize from 'react-textarea-autosize';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils/cn';
 import { Button } from '@/components/ui/button';
 import { Send } from 'lucide-react';
 import { FormEvent, useRef, useState } from 'react';

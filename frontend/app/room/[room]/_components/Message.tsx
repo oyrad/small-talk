@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils/cn';
 import Linkify from 'linkify-react';
 import { Event } from '@/hooks/room/use-room-events-query';
 import { useUserStore } from '@/stores/use-user-store';

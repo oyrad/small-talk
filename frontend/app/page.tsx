@@ -6,7 +6,7 @@ import { useUserStore } from '@/stores/use-user-store';
 import { useState } from 'react';
 import { useGetUserByIdQuery } from '@/hooks/user/use-get-user-by-id-query';
 import { ArrowRight, Edit, Plus } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils/cn';
 import { CreateRoom } from '@/app/_components/CreateRoom';
 import { Loader } from '@/app/_components/Loader';
 import Link from 'next/link';
