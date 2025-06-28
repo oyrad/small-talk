@@ -1,7 +1,7 @@
 import { fetchWithPrefix } from '@/utils/fetch-with-prefix';
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 import { EventType } from '@/types/event-type';
-import { Event } from '@/types/event';
+import { Event } from '@/hooks/room/use-room-events-query';
 
 interface SendEventParams {
   type: EventType;
