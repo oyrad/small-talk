@@ -1,18 +1,16 @@
-import { fetchWithPrefix } from '@/utils/fetch-with-prefix';
+import { fetchWithCredentials } from '@/utils/fetch-with-credentials';
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 
 interface LeaveRoomParams {
   roomId: string;
-  userId: string;
 }
 
-async function leaveRoom({ roomId, userId }: LeaveRoomParams) {
-  const res = await fetchWithPrefix(`room/${roomId}/leave`, {
-    method: 'POST',
+async function leaveRoom({ roomId }: LeaveRoomParams) {
+  const res = await fetchWithCredentials(`room/${roomId}/leave`, {
+    method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ userId }),
   });
 
   if (!res.ok) {
@@ -23,7 +21,10 @@ async function leaveRoom({ roomId, userId }: LeaveRoomParams) {
 }
 
 export function useLeaveRoomMutation(
-  options?: Omit<UseMutationOptions<ReturnType<typeof leaveRoom>, unknown, LeaveRoomParams>, 'mutationFn'>,
+  options?: Omit<
+    UseMutationOptions<ReturnType<typeof leaveRoom>, unknown, LeaveRoomParams>,
+    'mutationFn'
+  >,
 ) {
   return useMutation({
     mutationFn: leaveRoom,

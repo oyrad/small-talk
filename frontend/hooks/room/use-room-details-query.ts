@@ -1,5 +1,5 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
-import { fetchWithPrefix } from '@/utils/fetch-with-prefix';
+import { fetchWithCredentials } from '@/utils/fetch-with-credentials';
 
 export interface RoomUser {
   id: string;
@@ -19,7 +19,7 @@ export interface Room {
 }
 
 async function getRoomDetails(roomId: string): Promise<Room> {
-  const response = await fetchWithPrefix(`room/${roomId}/details`);
+  const response = await fetchWithCredentials(`room/${roomId}/details`);
 
   if (!response.ok) {
     throw new Error(response.statusText);

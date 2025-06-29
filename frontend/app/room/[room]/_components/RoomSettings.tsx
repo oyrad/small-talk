@@ -80,10 +80,7 @@ export function RoomSettings({ onCopyLink, room }: HeaderDropDownMenuProps) {
 
           <DropdownMenuSeparator />
 
-          <DropdownMenuItem
-            className="text-red-600"
-            onClick={() => leaveRoom({ roomId: room.id, userId: userId ?? '' })}
-          >
+          <DropdownMenuItem className="text-red-600" onClick={() => leaveRoom({ roomId: room.id })}>
             <DoorOpen className="text-red-600" />
             Leave room
           </DropdownMenuItem>
@@ -97,8 +94,16 @@ export function RoomSettings({ onCopyLink, room }: HeaderDropDownMenuProps) {
         isOpen={isAliasDialogOpen}
         setIsOpen={setIsAliasDialogOpen}
       />
-      <ChangeRoomName roomId={room.id} isOpen={isRoomNameDialogOpen} setIsOpen={setIsRoomNameDialogOpen} />
-      <RoomMembers members={room.users} isOpen={isRoomMembersDialogOpen} setIsOpen={setIsRoomMembersDialogOpen} />
+      <ChangeRoomName
+        roomId={room.id}
+        isOpen={isRoomNameDialogOpen}
+        setIsOpen={setIsRoomNameDialogOpen}
+      />
+      <RoomMembers
+        members={room.users}
+        isOpen={isRoomMembersDialogOpen}
+        setIsOpen={setIsRoomMembersDialogOpen}
+      />
     </>
   );
 }

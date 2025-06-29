@@ -15,17 +15,30 @@ import { RoomNotFound } from '@/app/room/[room]/_components/RoomNotFound';
 import { EVENT_TYPE } from '@/types/event-type';
 import { toast } from 'sonner';
 import { useRoomEventsQuery } from '@/hooks/room/use-room-events-query';
-import { useQueryClient } from '@tanstack/react-query';
 import { MessageInput } from '@/app/room/[room]/_components/MessageInput';
 import { useParams } from 'next/navigation';
 
 export default function Room() {
-  const queryClient = useQueryClient();
   const { room: roomId } = useParams<{ room: string }>();
 
   const { userId } = useUserStore();
 
-  const { data: room, isPending: isRoomLoading, error: roomError } = useRoomDetailsQuery(roomId);
+  const {
+    data: room,
+    isPending: isRoomLoading,
+    error: roomError,
+    refetch: refetchRoomDetails,
+  } = useRoomDetailsQuery(roomId);
+
+  const isPasswordProtected = !!room?.hasPassword;
+  const isUserInRoom = !!room?.users.find((roomUser) => roomUser.userId === userId);
+  const isAuthenticated = !isPasswordProtected || isUserInRoom;
+
+  const { data: events } = useRoomEventsQuery(roomId, {
+    enabled: room ? isAuthenticated : false,
+  });
+
+  useRoomSocket({ room, isAuthenticated });
 
   const { mutateAsync: joinRoom } = useJoinRoomMutation({
     onSuccess: () => {
@@ -37,20 +50,11 @@ export default function Room() {
     },
   });
 
-  const isPasswordProtected = !!room?.hasPassword;
-  const isUserInRoom = !!room?.users.find((roomUser) => roomUser.userId === userId);
-  const isAuthenticated = !isPasswordProtected || isUserInRoom;
-
-  useRoomSocket({ room, isAuthenticated });
-  const { data: events } = useRoomEventsQuery(roomId, {
-    enabled: room ? isAuthenticated : false,
-  });
-
   useEffect(() => {
     if (userId && room && !isPasswordProtected && !isUserInRoom) {
-      void joinRoom({ roomId: room.id, userId: userId });
+      void joinRoom({ roomId });
     }
-  }, [isPasswordProtected, isUserInRoom, joinRoom, room, userId]);
+  }, [isPasswordProtected, isUserInRoom, joinRoom, room, roomId, userId]);
 
   if (isRoomLoading) {
     return <Loader />;
@@ -64,14 +68,14 @@ export default function Room() {
     return (
       <PasswordPrompt
         onPasswordSubmit={async ({ password }) => {
-          const res = await joinRoom({ roomId, userId: userId ?? '', password });
+          const res = await joinRoom({ roomId, password });
 
           if (!res.success) {
             toast.error('Invalid password');
             return;
           }
 
-          return queryClient.invalidateQueries({ queryKey: ['room-details', roomId] });
+          void refetchRoomDetails();
         }}
       />
     );
@@ -86,7 +90,8 @@ export default function Room() {
           <Info className="size-5 min-w-5 text-gray-600" />
           <p className="text-gray-800">
             Disappearing messages are enabled. Messages will be deleted{' '}
-            <span className="font-semibold">{room.disappearingMessages}</span> after sending.
+            <span className="font-semibold">{room.disappearingMessages}</span> after
+            sending.
           </p>
         </div>
       )}

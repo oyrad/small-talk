@@ -1,5 +1,5 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
-import { fetchWithPrefix } from '@/utils/fetch-with-prefix';
+import { fetchWithCredentials } from '@/utils/fetch-with-credentials';
 import { DisappearingMessages } from '@/types/disappearing-messages';
 
 export interface User {
@@ -17,7 +17,7 @@ export interface User {
 }
 
 async function getUserById(userId: string): Promise<User> {
-  const response = await fetchWithPrefix(`user/${userId}`);
+  const response = await fetchWithCredentials(`user/${userId}`);
 
   if (!response.ok) {
     throw new Error('User not found');

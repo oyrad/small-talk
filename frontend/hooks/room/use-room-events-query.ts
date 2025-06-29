@@ -1,5 +1,5 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
-import { fetchWithPrefix } from '@/utils/fetch-with-prefix';
+import { fetchWithCredentials } from '@/utils/fetch-with-credentials';
 
 import { EventType } from '@/types/event-type';
 import { RoomUser } from '@/hooks/room/use-room-details-query';
@@ -13,7 +13,7 @@ export interface Event {
 }
 
 async function getRoomEvents(roomId: string): Promise<Array<Event>> {
-  const response = await fetchWithPrefix(`room/${roomId}/events`);
+  const response = await fetchWithCredentials(`room/${roomId}/events`);
 
   if (!response.ok) {
     throw new Error(response.statusText);

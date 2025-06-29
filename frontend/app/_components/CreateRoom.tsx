@@ -1,14 +1,26 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { PropsWithChildren } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { useCreateRoomMutation } from '@/hooks/room/use-create-room-mutation';
 import { useRouter } from 'next/navigation';
-import { useUserStore } from '@/stores/use-user-store';
 import { DialogBody } from 'next/dist/client/components/react-dev-overlay/ui/components/dialog';
 import { ClipLoader } from 'react-spinners';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { DISAPPEARING_MESSAGES, DisappearingMessages } from '@/types/disappearing-messages';
 
 interface CreateRoomFormValues {
@@ -23,7 +35,6 @@ interface CreateRoomProps extends PropsWithChildren {
 }
 
 export function CreateRoom({ isOpen, setIsOpen, children }: CreateRoomProps) {
-  const { userId } = useUserStore();
   const { push } = useRouter();
 
   const { register, control, handleSubmit } = useForm<CreateRoomFormValues>({
@@ -50,8 +61,9 @@ export function CreateRoom({ isOpen, setIsOpen, children }: CreateRoomProps) {
             createRoom({
               ...values,
               disappearingMessages:
-                values.disappearingMessages === DISAPPEARING_MESSAGES.DISABLED ? null : values.disappearingMessages,
-              userId: userId ?? '',
+                values.disappearingMessages === DISAPPEARING_MESSAGES.DISABLED
+                  ? null
+                  : values.disappearingMessages,
             }),
           )}
         >
@@ -75,8 +87,12 @@ export function CreateRoom({ isOpen, setIsOpen, children }: CreateRoomProps) {
                       <SelectContent>
                         <SelectGroup>
                           <SelectItem value={DISAPPEARING_MESSAGES.DISABLED}>Disabled</SelectItem>
-                          <SelectItem value={DISAPPEARING_MESSAGES.TEN_MINUTES}>10 minutes</SelectItem>
-                          <SelectItem value={DISAPPEARING_MESSAGES.THIRTY_MINUTES}>30 minutes</SelectItem>
+                          <SelectItem value={DISAPPEARING_MESSAGES.TEN_MINUTES}>
+                            10 minutes
+                          </SelectItem>
+                          <SelectItem value={DISAPPEARING_MESSAGES.THIRTY_MINUTES}>
+                            30 minutes
+                          </SelectItem>
                           <SelectItem value={DISAPPEARING_MESSAGES.ONE_HOUR}>1 hour</SelectItem>
                           <SelectItem value={DISAPPEARING_MESSAGES.ONE_DAY}>1 day</SelectItem>
                         </SelectGroup>
@@ -86,7 +102,9 @@ export function CreateRoom({ isOpen, setIsOpen, children }: CreateRoomProps) {
                 />
               </div>
 
-              <Button className="w-full">{isPending ? <ClipLoader color="white" size={20} /> : 'Create'}</Button>
+              <Button className="w-full">
+                {isPending ? <ClipLoader color="white" size={20} /> : 'Create'}
+              </Button>
             </DialogBody>
           </DialogHeader>
         </form>

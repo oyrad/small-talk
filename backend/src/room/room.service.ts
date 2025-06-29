@@ -25,7 +25,12 @@ export class RoomService {
     private readonly eventRepository: Repository<Event>,
   ) {}
 
-  async createRoom(userId: string, name: string, password: string, disappearingMessages: DisappearingMessages | null) {
+  async createRoom(
+    userId: string,
+    name: string,
+    password: string,
+    disappearingMessages: DisappearingMessages | null,
+  ) {
     this.logger.log(`Creating a new room: ${name ?? 'Unnamed Room'}`);
 
     const user = await this.userRepository.findOne({ where: { id: userId } });
@@ -205,9 +210,16 @@ export class RoomService {
     }
 
     if (!room.password) {
-      this.logger.log(`Room ${roomId} has no password, allowing access, adding user ${userId} to room.`);
+      this.logger.log(
+        `Room ${roomId} has no password, allowing access, adding user ${userId} to room.`,
+      );
 
-      const roomUser = this.roomUserRepository.create({ user, room, isAdmin: false, alias: user.alias });
+      const roomUser = this.roomUserRepository.create({
+        user,
+        room,
+        isAdmin: false,
+        alias: user.alias,
+      });
       await this.roomUserRepository.save(roomUser);
 
       const event = this.eventRepository.create({
@@ -230,8 +242,15 @@ export class RoomService {
       return { success: false };
     }
 
-    this.logger.log(`Password validated successfully for room ${roomId}, adding user ${userId} to room.`);
-    const roomUser = this.roomUserRepository.create({ user, room, isAdmin: false, alias: user.alias });
+    this.logger.log(
+      `Password validated successfully for room ${roomId}, adding user ${userId} to room.`,
+    );
+    const roomUser = this.roomUserRepository.create({
+      user,
+      room,
+      isAdmin: false,
+      alias: user.alias,
+    });
     await this.roomUserRepository.save(roomUser);
 
     const event = this.eventRepository.create({

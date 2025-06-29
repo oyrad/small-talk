@@ -1,5 +1,5 @@
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
-import { fetchWithPrefix } from '@/utils/fetch-with-prefix';
+import { fetchWithCredentials } from '@/utils/fetch-with-credentials';
 import { RoomUser } from '@/hooks/room/use-room-details-query';
 
 interface UpdateUserParams {
@@ -9,8 +9,7 @@ interface UpdateUserParams {
 }
 
 async function updateRoomUser({ roomId, userId, data }: UpdateUserParams): Promise<RoomUser> {
-  console.log('update room user', { data });
-  const res = await fetchWithPrefix(`room/${roomId}/user/${userId}`, {
+  const res = await fetchWithCredentials(`room/${roomId}/user/${userId}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',

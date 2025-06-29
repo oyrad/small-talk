@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import { compareAsc } from 'date-fns';
+import { randomUUID } from 'node:crypto';
 
 @Injectable()
 export class UserService {
@@ -40,7 +41,10 @@ export class UserService {
   async createUser() {
     this.logger.log('Creating a new user');
 
-    const user = this.userRepository.create();
+    const user = this.userRepository.create({
+      refreshToken: randomUUID(),
+    });
+
     const savedUser = await this.userRepository.save(user);
 
     this.logger.log(`User created with ID: ${savedUser.id}`);
@@ -57,5 +61,17 @@ export class UserService {
     this.logger.log(`User updated with ID: ${updatedUser.id}`);
 
     return updatedUser;
+  }
+
+  async getUserByRefreshToken(refreshToken: string) {
+    this.logger.log(`Fetching user by refresh token`);
+
+    const user = await this.userRepository.findOne({
+      where: { refreshToken },
+    });
+
+    if (!user) throw new NotFoundException('User not found');
+
+    return user;
   }
 }

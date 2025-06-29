@@ -12,6 +12,9 @@ export class User {
   @OneToMany(() => RoomUser, (roomUser) => roomUser.user, { cascade: true })
   rooms: Array<RoomUser>;
 
+  @Column({ nullable: true })
+  refreshToken: string;
+
   @CreateDateColumn()
   createdAt: Date;
 }

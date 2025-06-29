@@ -7,8 +7,10 @@ import { useUserStore } from '@/stores/use-user-store';
 export function InitializeUser() {
   const [firstRender, setFirstRender] = useState(true);
   const { userId, setUserId } = useUserStore();
+
   const { mutate: createUser } = useCreateUserMutation({
     onSuccess: (data) => {
+      console.log({ data });
       setUserId(data.id);
     },
   });

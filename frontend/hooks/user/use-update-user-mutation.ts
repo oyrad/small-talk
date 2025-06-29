@@ -1,5 +1,5 @@
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
-import { fetchWithPrefix } from '@/utils/fetch-with-prefix';
+import { fetchWithCredentials } from '@/utils/fetch-with-credentials';
 import { User } from '@/hooks/user/use-get-user-by-id-query';
 
 interface UpdateUserParams {
@@ -8,7 +8,7 @@ interface UpdateUserParams {
 }
 
 async function updateUser({ userId, data }: UpdateUserParams): Promise<User> {
-  const res = await fetchWithPrefix(`user/${userId}`, {
+  const res = await fetchWithCredentials(`user/${userId}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
@@ -19,7 +19,9 @@ async function updateUser({ userId, data }: UpdateUserParams): Promise<User> {
   return res.json();
 }
 
-export function useUpdateUserMutation(options?: Omit<UseMutationOptions<User, Error, UpdateUserParams>, 'mutationFn'>) {
+export function useUpdateUserMutation(
+  options?: Omit<UseMutationOptions<User, Error, UpdateUserParams>, 'mutationFn'>,
+) {
   return useMutation({
     mutationFn: updateUser,
     ...options,

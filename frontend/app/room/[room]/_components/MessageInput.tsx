@@ -36,7 +36,7 @@ export function MessageInput() {
       return;
     }
 
-    sendMessage({ type: EVENT_TYPE.MESSAGE, roomId, userId: userId ?? '', content: message });
+    sendMessage({ type: EVENT_TYPE.MESSAGE, roomId, content: message });
   }
 
   return (

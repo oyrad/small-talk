@@ -1,4 +1,4 @@
-import { fetchWithPrefix } from '@/utils/fetch-with-prefix';
+import { fetchWithCredentials } from '@/utils/fetch-with-credentials';
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 import { EventType } from '@/types/event-type';
 import { Event } from '@/hooks/room/use-room-events-query';
@@ -6,17 +6,16 @@ import { Event } from '@/hooks/room/use-room-events-query';
 interface SendEventParams {
   type: EventType;
   roomId: string;
-  userId: string;
   content?: string;
 }
 
-async function sendEvent({ type, roomId, userId, content }: SendEventParams): Promise<Event> {
-  const res = await fetchWithPrefix(`event/${roomId}`, {
+async function sendEvent({ type, roomId, content }: SendEventParams): Promise<Event> {
+  const res = await fetchWithCredentials(`event/${roomId}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ type, userId, content }),
+    body: JSON.stringify({ type, content }),
   });
 
   if (!res.ok) {

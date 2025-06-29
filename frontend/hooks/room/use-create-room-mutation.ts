@@ -1,22 +1,21 @@
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
-import { fetchWithPrefix } from '@/utils/fetch-with-prefix';
+import { fetchWithCredentials } from '@/utils/fetch-with-credentials';
 import { DisappearingMessages } from '@/types/disappearing-messages';
 import { Room } from '@/hooks/room/use-room-details-query';
 
 interface CreateRoomParams {
   name: string;
   password: string;
-  userId: string;
   disappearingMessages: DisappearingMessages | null;
 }
 
-async function createRoom({ userId, ...values }: CreateRoomParams): Promise<Room> {
-  const res = await fetchWithPrefix('room', {
+async function createRoom(values: CreateRoomParams): Promise<Room> {
+  const res = await fetchWithCredentials('room', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ userId, ...values }),
+    body: JSON.stringify(values),
   });
 
   if (!res.ok) {
