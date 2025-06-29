@@ -10,7 +10,6 @@ export function InitializeUser() {
 
   const { mutate: createUser } = useCreateUserMutation({
     onSuccess: (data) => {
-      console.log({ data });
       setUserId(data.id);
     },
   });
